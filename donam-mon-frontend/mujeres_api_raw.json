@@ -1,0 +1,24 @@
+﻿
+
+StatusCode        : 200
+StatusDescription : OK
+Content           : [{"id":7,"nombre":"Vandana Shiva","descripcion":"Ecofeminista india y activista medioambiental. Su lucha por la justicia 
+                    ambiental, la soberanÃa alimentaria y los derechos de las mujeres rurales cone...
+RawContent        : HTTP/1.1 200 OK
+                    Vary: Accept, origin, Cookie
+                    Allow: GET, POST, HEAD, OPTIONS
+                    X-Frame-Options: DENY
+                    X-Content-Type-Options: nosniff
+                    Referrer-Policy: same-origin
+                    Cross-Origin-Opener-Policy: same-o...
+Forms             : {}
+Headers           : {[Vary, Accept, origin, Cookie], [Allow, GET, POST, HEAD, OPTIONS], [X-Frame-Options, DENY], [X-Content-Type-Options, 
+                    nosniff]...}
+Images            : {}
+InputFields       : {}
+Links             : {}
+ParsedHtml        : mshtml.HTMLDocumentClass
+RawContentLength  : 6344
+
+
+
