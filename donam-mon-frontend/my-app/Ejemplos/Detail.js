@@ -1,122 +1,141 @@
-import React from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity, Share } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import MapView, { Marker } from 'react-native-maps';
 import styles from './styles-detail';
 
-// Componente de detalle de una falla
+// Componente de detalle de una mujer/lugar
 const Detail = ({ route, navigation }) => {
-    // Obtiene la falla mayor, la infantil (si existe) y la función updateFalla desde los parámetros de navegación
-    const { falla, fallaInfantil, updateFalla } = route.params;
+    // Obtiene el lugar y la función updateMujer desde los parámetros de navegación
+    const { lugar, updateMujer } = route.params;
 
-    // Cambia el estado de visitada/no visitada de la falla y actualiza el estado global
-    const toggleVisited = (falla, isInfantil = false) => {
-        const updatedFalla = { ...falla, visited: !falla.visited };
-        updateFalla(updatedFalla, isInfantil);
-        if (isInfantil) {
-            navigation.setParams({ fallaInfantil: updatedFalla });
-        } else {
-            navigation.setParams({ falla: updatedFalla });
-        }
+    // Cambia el estado de visitada/no visitada y actualiza el estado global
+    const toggleVisited = () => {
+        const updatedLugar = { ...lugar, visited: !lugar.visited };
+        updateMujer(updatedLugar);
+        navigation.setParams({ lugar: updatedLugar });
     };
 
-    // Renderiza la información detallada de una falla (mayor o infantil)
-    const renderFallaInfo = (falla) => (
-        <View style={styles.fallaContainer}>
-            {/* Imagen de la falla si existe, si no, texto alternativo */}
-            {falla.properties.boceto ? (
-                <Image source={{ uri: falla.properties.boceto }} style={styles.fallaImage} />
-            ) : (
-                <Text style={styles.text}>No hay imagen disponible</Text>
-            )}
-            {/* Información relevante de la falla */}
-            {falla.properties.seccion && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Sección: </Text>{falla.properties.seccion}
-                </Text>
-            )}
-            {falla.properties.fallera && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Fallera Mayor: </Text>{falla.properties.fallera}
-                </Text>
-            )}
-            {falla.properties.presidente && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Presidente: </Text>{falla.properties.presidente}
-                </Text>
-            )}
-            {falla.properties.anyo_fundacion && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Año de fundación: </Text>{falla.properties.anyo_fundacion}
-                </Text>
-            )}
-            {falla.properties.artista && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Artista: </Text>{falla.properties.artista}
-                </Text>
-            )}
-            {falla.properties.distintivo && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Distintivo: </Text>{falla.properties.distintivo}
-                </Text>
-            )}
-            {falla.properties.lema && (
-                <Text style={styles.text}>
-                    <Text style={styles.boldText}>Lema: </Text>{falla.properties.lema}
-                </Text>
-            )}
-        </View>
-    );
+    const [modalVisible, setModalVisible] = useState(false);
+    const [modalImage, setModalImage] = useState(null);
 
-    // Permite compartir la información de la falla (y la infantil si existe) usando el API Share
-    const compartirFalla = async () => {
-        try {
-            let message = `Me gustaría que veas esta falla:\n${falla.properties.nombre} de la sección ${falla.properties.seccion}.\n\"${falla.properties.lema}\" del artista fallero ${falla.properties.artista}.\n${falla.properties.boceto}.`;
-            if (fallaInfantil) {
-                message += `\n\nY también su falla infantil:\n${fallaInfantil.properties.nombre} de la sección ${fallaInfantil.properties.seccion}.\n\"${fallaInfantil.properties.lema}\" del artista fallero ${fallaInfantil.properties.artista}.\n${fallaInfantil.properties.boceto}.`;
-            }
-            await Share.share({ message });
-        } catch (error) {
-            console.error("Error al compartir la falla:", error);
-        }
+    const openImageModal = (imgUrl) => {
+        setModalImage(imgUrl);
+        setModalVisible(true);
     };
-
-    // Lista de secciones consideradas infantiles
-    const INFANTIL_SECTIONS = [
-        "IE", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11",
-        "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"
-    ];
-    // Determina si la falla es infantil
-    const esInfantil = INFANTIL_SECTIONS.includes(falla.properties.seccion);
+    const closeImageModal = () => {
+        setModalVisible(false);
+        setModalImage(null);
+    };
 
     // Render principal de la pantalla de detalle
     return (
-        <ScrollView style={styles.container}>
-            {/* Cabecera con el nombre de la falla y botones de compartir y visitada */}
-            <View style={{ alignItems: 'center', marginTop: 18, marginBottom: 8 }}>
-                <Text style={[styles.header, { color: '#b85c00', fontSize: 24, fontWeight: 'bold', textAlign: 'center', marginBottom: 6 }]}> 
-                    {falla.properties.nombre} (ID: {falla.properties.id_falla})
-                </Text>
-                {/* Botón para compartir debajo del nombre */}
-                <TouchableOpacity onPress={compartirFalla} style={{ backgroundColor: '#7196e4', borderRadius: 20, padding: 10, marginBottom: 8, elevation: 2 }}>
-                    <Ionicons name="share-social" size={24} color="#fff" />
-                </TouchableOpacity>
-                {/* Botón para marcar como visitada/no visitada */}
-                <TouchableOpacity onPress={() => toggleVisited(falla)} style={[styles.visitedButton, { marginBottom: 8, minWidth: 120, borderRadius: 18, backgroundColor: falla.visited ? '#43a047' : '#e53935', elevation: 1 }]}> 
-                    <Text style={[styles.visitedButtonText, { color: '#fff', fontWeight: 'bold', fontSize: 15 }]}>{falla.visited ? 'Visitada' : 'No visitada'}</Text>
-                </TouchableOpacity>
-            </View>
-            {/* Tarjeta de información de la falla mayor */}
-            <View style={{ backgroundColor: '#fffbe9', borderRadius: 16, padding: 16, marginBottom: 18, marginHorizontal: 8, elevation: 1 }}>
-                <Text style={[styles.subHeader, { color: '#b85c00', fontSize: 17, marginBottom: 8 }]}>Falla Mayor</Text>
-                {renderFallaInfo(falla)}
-            </View>
-            {/* Si existe, tarjeta de información de la falla infantil asociada */}
-            {fallaInfantil && (
-                <View style={{ backgroundColor: '#fffbe9', borderRadius: 16, padding: 16, marginBottom: 18, marginHorizontal: 8, elevation: 1 }}>
-                    <Text style={[styles.subHeader, { color: '#b85c00', fontSize: 17, marginBottom: 8 }]}>Falla Infantil</Text>
-                    {renderFallaInfo(fallaInfantil)}
+        <ScrollView style={[styles.container, { backgroundColor: '#edebff' }]}> 
+            {/* Modal de imagen en grande */}
+            {modalVisible && (
+                <View style={{ position: 'absolute', zIndex: 1000, top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' }}>
+                    <TouchableOpacity onPress={closeImageModal} style={{ position: 'absolute', top: 36, right: 18, zIndex: 101, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: 6 }}>
+                        <Ionicons name="close" size={38} color="#fff" />
+                    </TouchableOpacity>
+                    <Image source={{ uri: modalImage }} style={{ width: '100%', height: '100%', resizeMode: 'contain' }} />
                 </View>
             )}
+            {/* Tarjeta de información de la mujer */}
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.97)', borderRadius: 20, padding: 18, marginTop: 18, marginBottom: 12, marginHorizontal: 8, elevation: 2, borderWidth: 2, borderColor: '#bc5880', alignItems: 'center' }}>
+                {/* Nombre de la mujer */}
+                <Text style={{ color: '#bc5880', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 6 }}>{lugar.mujer_nombre}</Text>
+                {/* Imagen de la mujer */}
+                {lugar.mujer_foto ? (
+                    <TouchableOpacity onPress={() => openImageModal(lugar.mujer_foto)}>
+                        <Image
+                            source={{ uri: lugar.mujer_foto }}
+                            style={{ width: 120, height: 120, borderRadius: 60, borderWidth: 3, borderColor: '#edebff', backgroundColor: '#edebff', marginBottom: 10 }}
+                        />
+                    </TouchableOpacity>
+                ) : null}
+                {/* Descripción de la mujer justificada a la izquierda */}
+                {lugar.mujer_descripcion && (
+                    <Text style={{ color: '#222', fontSize: 15, marginBottom: 8, textAlign: 'left', alignSelf: 'stretch' }}>{lugar.mujer_descripcion}</Text>
+                )}
+                {/* Chips de áreas de investigación */}
+                {(Array.isArray(lugar.areas_investigacion) && lugar.areas_investigacion.length > 0) ? (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 6, marginBottom: 4 }}>
+                        {lugar.areas_investigacion.map((area, idx) => (
+                            <View key={idx} style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{area}</Text>
+                            </View>
+                        ))}
+                    </View>
+                ) : (
+                    lugar.areas_investigacion && typeof lugar.areas_investigacion === 'string' && lugar.areas_investigacion.length > 0 ? (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 6, marginBottom: 4 }}>
+                            <View style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.areas_investigacion}</Text>
+                            </View>
+                        </View>
+                    ) : null
+                )}
+                {/* Chip de ámbito */}
+                {lugar.mujer_ambito && (
+                    <View style={{ backgroundColor: '#bc5880', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                        <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.mujer_ambito}</Text>
+                    </View>
+                )}
+                {/* Fechas de la mujer */}
+                {lugar.mujer_fechas && (
+                    <Text style={{ color: '#5f68c4', fontSize: 15, marginBottom: 2 }}>{lugar.mujer_fechas}</Text>
+                )}
+            </View>
+            {/* Tarjeta de información del lugar */}
+            <View style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 20, padding: 18, marginBottom: 18, marginHorizontal: 8, elevation: 2, borderWidth: 2, borderColor: '#5f68c4' }}>
+                <Text style={{ color: '#5f68c4', fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>Lugar</Text>
+                {/* Imagen del lugar */}
+                {lugar.foto ? (
+                    <TouchableOpacity onPress={() => openImageModal(lugar.foto)}>
+                        <Image source={{ uri: lugar.foto }} style={{ width: '100%', height: 180, borderRadius: 14, marginBottom: 12, borderWidth: 2, borderColor: '#bc5880' }} />
+                    </TouchableOpacity>
+                ) : (
+                    <Text style={styles.text}>No hay imagen disponible</Text>
+                )}
+                {/* Información relevante del lugar */}
+                <Text style={{ fontSize: 16, color: '#bc5880', fontWeight: 'bold', marginBottom: 4 }}>Nombre: <Text style={{ fontWeight: 'normal', color: '#222' }}>{lugar.nombre}</Text></Text>
+                {lugar.direccion && (
+                    <Text style={{ fontSize: 15, color: '#5f68c4', marginBottom: 2 }}>Dirección: <Text style={{ color: '#222' }}>{lugar.direccion}</Text></Text>
+                )}
+                {lugar.descripcion && (
+                    <Text style={{ fontSize: 15, color: '#5f68c4', marginBottom: 2 }}>Descripción: <Text style={{ color: '#222' }}>{lugar.descripcion}</Text></Text>
+                )}
+                {lugar.distance !== null && (
+                    <Text style={{ fontSize: 15, color: '#bc5880', marginBottom: 8 }}>Distancia: <Text style={{ color: '#222' }}>{lugar.distance.toFixed(2)} km</Text></Text>
+                )}
+                {/* Botón para marcar como visitada/no visitada */}
+                <TouchableOpacity onPress={toggleVisited} style={{ alignSelf: 'center', marginTop: 10, minWidth: 140, borderRadius: 20, backgroundColor: lugar.visited ? '#43a047' : '#e53935', elevation: 2, paddingVertical: 12, paddingHorizontal: 22 }}>
+                    <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16, textAlign: 'center' }}>{lugar.visited ? 'Lugar visitado' : 'Lugar no visitado'}</Text>
+                </TouchableOpacity>
+                {/* Mapa del lugar (solo debajo del botón) */}
+                {lugar.latitud && lugar.longitud && (
+                    <View style={{ width: '100%', height: 180, borderRadius: 14, overflow: 'hidden', marginTop: 12, marginBottom: 12, borderWidth: 2, borderColor: '#bc5880' }}>
+                        <MapView
+                            style={{ flex: 1 }}
+                            initialRegion={{
+                                latitude: lugar.latitud,
+                                longitude: lugar.longitud,
+                                latitudeDelta: 0.003,
+                                longitudeDelta: 0.003,
+                            }}
+                            scrollEnabled={false}
+                            zoomEnabled={false}
+                            pitchEnabled={false}
+                            rotateEnabled={false}
+                        >
+                            <Marker 
+                                coordinate={{ latitude: lugar.latitud, longitude: lugar.longitud }}
+                                pinColor={'#5f68c4'} // Color personalizado (azul)
+                            />
+                        </MapView>
+                    </View>
+                )}
+            </View>
         </ScrollView>
     );
 }

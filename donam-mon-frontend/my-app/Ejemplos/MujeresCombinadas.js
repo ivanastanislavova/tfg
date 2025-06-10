@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, FlatList, Text, TouchableOpacity, TextInput, Image } from 'react-native';
+import { View, FlatList, Text, TouchableOpacity, TextInput, Image, ImageBackground, Dimensions } from 'react-native';
 import axios from 'axios';
 import * as Location from 'expo-location';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
@@ -34,7 +34,7 @@ const MujeresCombinadas = () => {
     useEffect(() => {
         const fetchMujeres = async () => {
             try {
-                const response = await axios.get('http://10.20.17.99:8000/api/mujeres/');
+                const response = await axios.get('http://192.168.1.132:8000/api/mujeres/');
                 // Aplana los lugares y añade referencia a la mujer
                 let mujeresLugares = [];
                 response.data.forEach(mujer => {
@@ -45,7 +45,8 @@ const MujeresCombinadas = () => {
                                 mujer_nombre: mujer.nombre,
                                 mujer_foto: mujer.foto,
                                 mujer_descripcion: mujer.descripcion,
-                                area: mujer.area_conocimiento, // Ajusta el campo según tu modelo
+                                areas_investigacion: mujer.areas_investigacion, // <-- Añadido correctamente
+                                area: mujer.area_conocimiento, // Si tienes un campo de área principal
                                 visited: false // Inicialmente no visitada
                             });
                         });
@@ -147,7 +148,7 @@ const MujeresCombinadas = () => {
 
     // Render principal
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { backgroundColor: '#edebff' }]}> 
             {/* Botón para mostrar/ocultar filtros */}
             <TouchableOpacity
                 style={styles.filterButton2}
@@ -229,44 +230,48 @@ const MujeresCombinadas = () => {
                 <FlatList
                     data={filteredLugares}
                     keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
-                    renderItem={({ item }) => (
-                        <TouchableOpacity
-                            style={[styles.fallaContainer, { flexDirection: 'row', alignItems: 'center', paddingVertical: 12, paddingHorizontal: 10, marginBottom: 10, borderRadius: 12, backgroundColor: '#fff', elevation: 2, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 4, shadowOffset: { width: 0, height: 2 } }]}
-                            onPress={() => updateMujer(item)}
-                        >
-                            {/* Imagen circular de la mujer a la izquierda */}
-                            <View style={{ width: 54, alignItems: 'center', marginRight: 12 }}>
-                                {item.mujer_foto ? (
-                                    <Image
-                                        source={{ uri: item.mujer_foto }}
-                                        style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 2, borderColor: '#f7c873', backgroundColor: '#eee' }}
-                                    />
-                                ) : (
-                                    <Image
-                                        source={require('../assets/usuario.png')}
-                                        style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 2, borderColor: '#f7c873', backgroundColor: '#eee' }}
-                                    />
-                                )}
-                            </View>
-                            {/* Info principal del lugar y la mujer */}
-                            <View style={{ flex: 1, justifyContent: 'center' }}>
-                                <Text style={[styles.fallaTitle, { fontSize: 17, fontWeight: 'bold', marginBottom: 6, color: '#b85c00' }]} numberOfLines={2}>{item.nombre}</Text>
-                                <Text style={{ fontSize: 15, color: '#1e88e5', fontWeight: '600', marginBottom: 2 }}>{item.mujer_nombre}</Text>
-                                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                                    {item.distance !== null && (
-                                        <Text style={{ fontWeight: 'bold', fontSize: 15, color: '#1e88e5', marginRight: 12 }}>{item.distance.toFixed(2)} km</Text>
-                                    )}
-                                    <Text style={[styles.fallaVisited, { fontSize: 13, color: item.visited ? '#43a047' : '#e53935', fontWeight: 'bold' }]}>{item.visited ? 'Visitado' : 'No visitado'}</Text>
-                                </View>
-                            </View>
-                            {/* Área de conocimiento a la derecha */}
-                            <View style={{ width: 100, alignItems: 'center', marginLeft: 12 }}>
-                                <View style={{ backgroundColor: '#f7c873', borderRadius: 8, paddingVertical: 2, paddingHorizontal: 8, marginBottom: 4 }}>
-                                    <Text style={{ fontSize: 13, color: '#222', textAlign: 'center' }}>{item.area}</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
-                    )}
+                    numColumns={1}
+                    renderItem={({ item }) => {
+                        const screenWidth = Dimensions.get('window').width;
+                        const cardMargin = 18;
+                        const cardSize = screenWidth - cardMargin * 2;
+                        return (
+                            <TouchableOpacity
+                                style={{ marginBottom: 20, alignItems: 'center' }}
+                                onPress={() => navigation.navigate('Detail', { lugar: item, updateMujer })}
+                                activeOpacity={0.85}
+                            >
+                                <ImageBackground
+                                    source={item.foto ? { uri: item.foto } : require('../assets/usuario.png')}
+                                    style={{ width: cardSize, height: cardSize, borderRadius: 24, overflow: 'hidden', justifyContent: 'flex-end' }}
+                                    imageStyle={{ borderRadius: 24 }}
+                                    resizeMode="cover"
+                                >
+                                    {/* Nombre del lugar en la parte superior */}
+                                    <View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: 'rgba(95,104,196,0.75)', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingVertical: 10, paddingHorizontal: 16, zIndex: 2 }}>
+                                        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18, textAlign: 'center' }} numberOfLines={2}>{item.nombre}</Text>
+                                    </View>
+                                    {/* Imagen de la mujer superpuesta, centrada justo en el borde superior del contenedor blanco */}
+                                    <View style={{ position: 'absolute', left: 0, right: 0, bottom: 70, alignItems: 'center', zIndex: 3 }}>
+                                        <Image
+                                            source={item.mujer_foto ? { uri: item.mujer_foto } : require('../assets/usuario.png')}
+                                            style={{ width: 80, height: 80, borderRadius: 40, borderWidth: 3, borderColor: '#edebff', backgroundColor: '#edebff' }}
+                                        />
+                                    </View>
+                                    {/* Info inferior: nombre de la mujer y datos */}
+                                    <View style={{ backgroundColor: 'rgba(255,255,255,0.85)', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, padding: 14, paddingTop: 40, alignItems: 'center', zIndex: 2, minHeight: 90 }}>
+                                        <Text style={[styles.fallaTitle, { fontSize: 18, fontWeight: 'bold', color: '#bc5880', marginBottom: 6, textAlign: 'center' }]} numberOfLines={2}>{item.mujer_nombre}</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, justifyContent: 'center' }}>
+                                            {item.distance !== null && (
+                                                <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#1e88e5', marginRight: 8 }}>{item.distance.toFixed(2)} km</Text>
+                                            )}
+                                            <Text style={{ fontSize: 13, color: item.visited ? '#43a047' : '#e53935', fontWeight: 'bold' }}>{item.visited ? 'Visitado' : 'No visitado'}</Text>
+                                        </View>
+                                    </View>
+                                </ImageBackground>
+                            </TouchableOpacity>
+                        );
+                    }}
                 />
             )}
         </View>

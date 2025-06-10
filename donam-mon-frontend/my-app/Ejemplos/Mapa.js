@@ -52,7 +52,7 @@ const Mapa = () => {
         // Obtener mujeres y sus lugares desde la API de Django
         const fetchMujeres = async () => {
             try {
-                const response = await axios.get('http://10.20.17.99:8000/api/mujeres/');
+                const response = await axios.get('http://192.168.1.132:8000/api/mujeres/');
                 setLugares(response.data); // Guardamos el array de mujeres (cada una con sus lugares)
             } catch (error) {
                 console.error('Error fetching mujeres:', error);

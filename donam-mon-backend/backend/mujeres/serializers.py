@@ -34,7 +34,7 @@ class MujerSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mujer
-        fields = ('id', 'nombre', 'descripcion', 'foto', 'foto_url', 'lugares')
+        fields = ('id', 'nombre', 'descripcion', 'foto', 'foto_url', 'lugares', 'areas_investigacion')
 
     def get_foto_url(self, obj):
         request = self.context.get('request')
