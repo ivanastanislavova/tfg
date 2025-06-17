@@ -1,7 +1,7 @@
-from django.contrib.gis.db import models
+from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
-from django.db import models
+from django.utils import timezone
 
 class AreaInvestigacion(models.Model):
     nombre = models.CharField(max_length=100, unique=True)
@@ -42,3 +42,15 @@ class UserProfile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+class VisitedLugar(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='visited_lugares')
+    lugar = models.ForeignKey(Lugar, on_delete=models.CASCADE)
+    visited_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('user', 'lugar')
+        ordering = ['-visited_at']
+
+    def __str__(self):
+        return f"{self.user.username} visitó {self.lugar.nombre} el {self.visited_at}"

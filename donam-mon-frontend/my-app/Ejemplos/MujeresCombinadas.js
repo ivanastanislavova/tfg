@@ -30,6 +30,31 @@ const MujeresCombinadas = () => {
     const isFocused = useIsFocused();
     const { selectedSection, setSelectedSection, selectedVisited, setSelectedVisited, searchTerm, setSearchTerm, sections, setSections } = useFiltros();
 
+    // Nueva función: obtener lugares visitados del backend y marcar los lugares
+    const fetchVisitedAndSet = async (lugares) => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+                setMujeres(lugares.map(l => ({ ...l, visited: false })));
+                return;
+            }
+            const response = await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+                method: 'GET',
+                headers: {
+                    'Authorization': `Token ${token}`,
+                },
+            });
+            let visitedIds = [];
+            if (response.ok) {
+                const data = await response.json();
+                visitedIds = data.map(v => v.lugar.id);
+            }
+            setMujeres(lugares.map(l => ({ ...l, visited: visitedIds.includes(l.id) })));
+        } catch (error) {
+            setMujeres(lugares.map(l => ({ ...l, visited: false })));
+        }
+    };
+
     // Carga de datos de mujeres y ubicación al entrar en la pantalla
     useEffect(() => {
         const fetchMujeres = async () => {
@@ -52,15 +77,7 @@ const MujeresCombinadas = () => {
                         });
                     }
                 });
-                // Cargar historial de visitadas
-                const storedVisited = await AsyncStorage.getItem('visitedMujeres');
-                const visited = storedVisited ? JSON.parse(storedVisited) : [];
-                // Marca como visitadas
-                mujeresLugares = mujeresLugares.map(lugar => {
-                    const isVisited = visited.some(v => v.id === lugar.id);
-                    return { ...lugar, visited: isVisited };
-                });
-                setMujeres(mujeresLugares);
+                await fetchVisitedAndSet(mujeresLugares);
             } catch (error) {
                 console.error('Error fetching mujeres:', error);
             }
@@ -94,12 +111,8 @@ const MujeresCombinadas = () => {
     };
 
     // Marca una mujer como visitada o no visitada y actualiza AsyncStorage
-    const updateMujer = async (lugar) => {
-        let updated = mujeres.map(l => l.id === lugar.id ? { ...l, visited: !l.visited } : l);
-        setMujeres(updated);
-        // Actualiza en AsyncStorage
-        const visited = updated.filter(l => l.visited);
-        await AsyncStorage.setItem('visitedMujeres', JSON.stringify(visited.map(l => ({ id: l.id }))));
+    const updateMujer = async () => {
+        await fetchMujeres();
     };
 
     // Lógica de distancia

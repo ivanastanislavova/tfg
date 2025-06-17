@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mujer, Lugar, UserProfile
+from .models import Mujer, Lugar, UserProfile, VisitedLugar
 from django.contrib.auth.models import User
 
 class LugarSerializer(serializers.ModelSerializer):
@@ -58,3 +58,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         user = User.objects.create_user(username=validated_data['username'], password=validated_data['password'])
         UserProfile.objects.create(user=user, **profile_data)
         return user
+
+class VisitedLugarSerializer(serializers.ModelSerializer):
+    lugar = LugarSerializer(read_only=True)
+    class Meta:
+        model = VisitedLugar
+        fields = ['id', 'lugar', 'visited_at']

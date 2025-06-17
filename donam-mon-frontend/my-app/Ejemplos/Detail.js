@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import styles from './styles-detail';
 
 // Componente de detalle de una mujer/lugar
@@ -10,10 +11,28 @@ const Detail = ({ route, navigation }) => {
     const { lugar, updateMujer } = route.params;
 
     // Cambia el estado de visitada/no visitada y actualiza el estado global
-    const toggleVisited = () => {
+    const toggleVisited = async () => {
         const updatedLugar = { ...lugar, visited: !lugar.visited };
         updateMujer(updatedLugar);
         navigation.setParams({ lugar: updatedLugar });
+        // Si se marca como visitado, registrar en el backend
+        if (!lugar.visited) {
+            try {
+                const token = await AsyncStorage.getItem('token');
+                if (token) {
+                    await fetch('http://192.168.1.132:8000/api/visit-lugar/', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Token ${token}`,
+                        },
+                        body: JSON.stringify({ lugar_id: lugar.id }),
+                    });
+                }
+            } catch (error) {
+                console.error('Error registrando visita:', error);
+            }
+        }
     };
 
     const [modalVisible, setModalVisible] = useState(false);

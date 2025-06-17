@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'mujeres',
-    'rest_framework_gis',
 ]
 
 MIDDLEWARE = [
@@ -90,7 +89,7 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',  # en lugar de 'django.db.backends.postgresql'
+        'ENGINE': 'django.db.backends.postgresql',  # en lugar de 'django.contrib.gis.db.backends.postgis'
         'NAME': 'donamon',
         'USER': 'ivana',
         'PASSWORD': 'superclave',
