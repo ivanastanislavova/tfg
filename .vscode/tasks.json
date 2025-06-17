@@ -1,0 +1,11 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "shell",
+			"label": "Reiniciar backend Django para aplicar endpoint de cambio de usuario",
+			"command": "docker compose restart",
+			"group": "build"
+		}
+	]
+}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
-import { FontAwesome } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import usersData from '../usuarios.json';
@@ -21,19 +20,20 @@ export default function Login() {
     initializeUsers();
   }, []);
 
-  // Valida el login del usuario
+  // Valida el login del usuario contra la API de Django
   const validateLogin = async () => {
     try {
-      const storedUsers = await AsyncStorage.getItem('users');
-      const users = storedUsers ? JSON.parse(storedUsers) : [];
-
-      // Busca usuario y contraseña
-      const user = users.find(u => u.username === username && u.password === password);
-      if (user) {
-        // Si es correcto, guarda el usuario actual y el estado de login
-        await AsyncStorage.setItem('currentUser', JSON.stringify(user));
-        await AsyncStorage.setItem('isLoggedIn', 'true'); // Guardar el estado de sesión activa
-        navigation.navigate('Welcome'); // Navegar a la pantalla de bienvenida
+    const response = await fetch('http://192.168.1.132:8000/api/api-token-auth/', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        await AsyncStorage.setItem('token', data.token);
+        await AsyncStorage.setItem('currentUser', username);
+        await AsyncStorage.setItem('isLoggedIn', 'true');
+        navigation.navigate('Welcome');
       } else {
         Alert.alert('Error', 'Usuario o contraseña incorrectos');
       }
@@ -45,36 +45,85 @@ export default function Login() {
 
   // Renderiza la pantalla de login
   return (
-    <View style={styles.container}>
-      <View style={styles.overlay}>
-        <Text style={styles.title}>🔥 Fallas Login 🔥</Text>
-
-        {/* Input de usuario */}
+    <View style={{ flex: 1, backgroundColor: '#edebff', justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{
+        width: '90%',
+        backgroundColor: 'rgba(255,255,255,0.95)',
+        padding: 28,
+        borderRadius: 18,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOpacity: 0.10,
+        shadowRadius: 8,
+        shadowOffset: { width: 0, height: 4 },
+        elevation: 6,
+      }}>
+        <Text style={{ fontSize: 28, fontWeight: 'bold', color: '#5f68c4', marginBottom: 18, textAlign: 'center' }}>
+          Iniciar sesión
+        </Text>
         <TextInput
-          style={styles.input}
+          style={{
+            width: '100%',
+            height: 44,
+            borderColor: '#bc5880',
+            borderWidth: 2,
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            fontSize: 17,
+            marginBottom: 14,
+            color: '#222',
+            backgroundColor: '#fff',
+          }}
           placeholder="Usuario"
-          placeholderTextColor="white"
+          placeholderTextColor="#aaa"
           value={username}
-          onChangeText={name => setUsername(name)}
+          onChangeText={setUsername}
         />
-
-        {/* Input de contraseña */}
         <TextInput
-          style={styles.input}
+          style={{
+            width: '100%',
+            height: 44,
+            borderColor: '#bc5880',
+            borderWidth: 2,
+            borderRadius: 10,
+            paddingHorizontal: 14,
+            fontSize: 17,
+            marginBottom: 18,
+            color: '#222',
+            backgroundColor: '#fff',
+          }}
           placeholder="Contraseña"
-          placeholderTextColor="white"
+          placeholderTextColor="#aaa"
           value={password}
           secureTextEntry={true}
-          onChangeText={name => setPassword(name)}
+          onChangeText={setPassword}
         />
-
-        {/* Botón de login */}
-        <TouchableOpacity style={styles.button} onPress={validateLogin}>
-          <Text style={styles.buttonText}>Aceptar</Text>
+        <TouchableOpacity
+          style={{
+            backgroundColor: '#5f68c4',
+            paddingVertical: 12,
+            paddingHorizontal: 50,
+            borderRadius: 10,
+            marginTop: 6,
+            marginBottom: 10,
+            shadowColor: '#5f68c4',
+            shadowOpacity: 0.15,
+            shadowRadius: 4,
+            shadowOffset: { width: 0, height: 2 },
+            elevation: 2,
+          }}
+          onPress={validateLogin}
+        >
+          <Text style={{ fontSize: 18, color: '#fff', fontWeight: 'bold', letterSpacing: 1 }}>Entrar</Text>
         </TouchableOpacity>
-
-        {/* Icono decorativo */}
-        <FontAwesome name="fire" size={50} color="orange" style={styles.icon} />
+        <TouchableOpacity
+          style={{ alignSelf: 'center', marginTop: 10 }}
+          onPress={() => navigation.navigate('Register')}
+        >
+          <Text style={{ color: '#5f68c4', fontWeight: 'bold', fontSize: 15 }}>
+            ¿No tienes cuenta? <Text style={{ textDecorationLine: 'underline' }}>Regístrate</Text>
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );

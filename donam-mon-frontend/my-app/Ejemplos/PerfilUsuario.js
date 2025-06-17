@@ -23,7 +23,15 @@ const PerfilUsuario = ({ route, navigation }) => {
             try {
                 const userData = await AsyncStorage.getItem('currentUser');
                 if (userData) {
-                    const user = JSON.parse(userData);
+                    let user;
+                    if (typeof userData === 'string' && userData.trim().startsWith('{')) {
+                        user = JSON.parse(userData);
+                    } else if (typeof userData === 'object') {
+                        user = userData;
+                    } else {
+                        // Si es un string plano (nombre de usuario), lo convertimos a objeto
+                        user = { username: userData };
+                    }
                     setCurrentUser(user);
                     setNewUsername(user.username);
                 }
@@ -64,21 +72,33 @@ const PerfilUsuario = ({ route, navigation }) => {
         try {
             if (!currentUser) return;
 
-            const storedUsers = await AsyncStorage.getItem('users');
-            if (!storedUsers) return Alert.alert('Error', 'No se encontraron usuarios');
+            // Obtener el token de autenticación
+            const token = await AsyncStorage.getItem('token');
+            if (!token) {
+                Alert.alert('Error', 'No se encontró el token de autenticación.');
+                return;
+            }
 
-            let users = JSON.parse(storedUsers);
-
-            const userIndex = users.findIndex(u => u.username === currentUser.username);
-            if (userIndex !== -1) {
-                users[userIndex].username = newUsername;
-                await AsyncStorage.setItem('users', JSON.stringify(users));
+            // Llamada al backend para actualizar el nombre de usuario
+            const response = await fetch('http://192.168.1.132:8000/api/update-username/', {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${token}`,
+                },
+                body: JSON.stringify({ username: newUsername }),
+            });
+            const data = await response.json();
+            if (response.ok) {
+                // Actualiza el usuario en AsyncStorage
                 const updatedUser = { ...currentUser, username: newUsername };
                 await AsyncStorage.setItem('currentUser', JSON.stringify(updatedUser));
+                setCurrentUser(updatedUser);
+                setNewUsername(newUsername);
                 Alert.alert('Éxito', 'Nombre de usuario actualizado');
                 navigation.navigate('Main', { username: newUsername });
             } else {
-                Alert.alert('Error', 'Usuario no encontrado');
+                Alert.alert('Error', data.error || 'No se pudo actualizar el nombre');
             }
         } catch (error) {
             console.error('Error al actualizar el nombre de usuario:', error);

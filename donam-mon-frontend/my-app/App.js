@@ -3,6 +3,7 @@ import React from 'react';
 import { Alert, Button, StyleSheet, Text, View } from 'react-native';
 import NavigationAppDemo2 from './Ejemplos/NavigationAppDemo2';
 import { FiltrosProvider } from './Ejemplos/FiltrosContext';
+import Register from './Ejemplos/Register';
 
 // Componente principal de la app
 export default function App() {

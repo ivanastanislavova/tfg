@@ -1,21 +1,14 @@
 from rest_framework import serializers
-from .models import Mujer, Lugar
+from .models import Mujer, Lugar, UserProfile
+from django.contrib.auth.models import User
 
 class LugarSerializer(serializers.ModelSerializer):
-    latitud = serializers.SerializerMethodField()
-    longitud = serializers.SerializerMethodField()
     mujer = serializers.StringRelatedField()
     foto_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Lugar
         fields = ('id', 'nombre', 'descripcion', 'latitud', 'longitud', 'mujer', 'foto', 'foto_url')
-
-    def get_latitud(self, obj):
-        return obj.ubicacion.y if obj.ubicacion else None
-
-    def get_longitud(self, obj):
-        return obj.ubicacion.x if obj.ubicacion else None
 
     def get_foto_url(self, obj):
         request = self.context.get('request')
@@ -47,3 +40,21 @@ class MujerSerializer(serializers.ModelSerializer):
             else:
                 return url
         return None
+
+class UserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserProfile
+        fields = ['birth_date', 'email']
+
+class UserRegisterSerializer(serializers.ModelSerializer):
+    profile = UserProfileSerializer()
+    class Meta:
+        model = User
+        fields = ['username', 'password', 'profile']
+        extra_kwargs = {'password': {'write_only': True}}
+
+    def create(self, validated_data):
+        profile_data = validated_data.pop('profile')
+        user = User.objects.create_user(username=validated_data['username'], password=validated_data['password'])
+        UserProfile.objects.create(user=user, **profile_data)
+        return user

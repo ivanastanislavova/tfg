@@ -8,7 +8,9 @@ import Main from './Main';
 import Detail from './Detail';
 import Welcome from './Welcome';
 import Filtros from './Filtros';
+import Register from './Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 // Crea el stack de navegación (pantallas apiladas)
 const Stack = createStackNavigator();
@@ -53,6 +55,7 @@ const NavigationAppDemo2 = () => {
       >
         {/* Pantalla de login (sin header) */}
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
+        <Stack.Screen name="Register" component={Register} options={{ headerShown: false }} />
         {/* Pantalla de bienvenida (sin header) */}
         <Stack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
         {/* Pantalla principal con tabs */}
