@@ -31,6 +31,7 @@ class Lugar(models.Model):
     longitud = models.FloatField(null=True, blank=True)
     mujer = models.ForeignKey(Mujer, related_name='lugares', on_delete=models.CASCADE)
     foto = models.ImageField(upload_to='', null=True, blank=True)
+    ar_url = models.URLField(max_length=300, null=True, blank=True, verbose_name='URL de Realidad Aumentada')
 
     def __str__(self):
         return self.nombre
@@ -54,3 +55,16 @@ class VisitedLugar(models.Model):
 
     def __str__(self):
         return f"{self.user.username} visitó {self.lugar.nombre} el {self.visited_at}"
+
+class VisitedLugarRuta(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='visited_lugares_ruta')
+    mujer = models.ForeignKey(Mujer, on_delete=models.CASCADE, related_name='rutas_visitadas')
+    lugar = models.ForeignKey(Lugar, on_delete=models.CASCADE)
+    visited_at = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        unique_together = ('user', 'mujer', 'lugar')
+        ordering = ['-visited_at']
+
+    def __str__(self):
+        return f"{self.user.username} visitó {self.lugar.nombre} en ruta {self.mujer.nombre} el {self.visited_at}"

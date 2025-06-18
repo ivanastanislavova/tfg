@@ -15,22 +15,35 @@ const Detail = ({ route, navigation }) => {
         const updatedLugar = { ...lugar, visited: !lugar.visited };
         updateMujer(updatedLugar);
         navigation.setParams({ lugar: updatedLugar });
-        // Si se marca como visitado, registrar en el backend
+        const token = await AsyncStorage.getItem('token');
+        if (!token) return;
         if (!lugar.visited) {
+            // Marcar como visitado
             try {
-                const token = await AsyncStorage.getItem('token');
-                if (token) {
-                    await fetch('http://192.168.1.132:8000/api/visit-lugar/', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Authorization': `Token ${token}`,
-                        },
-                        body: JSON.stringify({ lugar_id: lugar.id }),
-                    });
-                }
+                await fetch('http://192.168.1.132:8000/api/visit-lugar/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`,
+                    },
+                    body: JSON.stringify({ lugar_id: lugar.id }),
+                });
             } catch (error) {
                 console.error('Error registrando visita:', error);
+            }
+        } else {
+            // Marcar como no visitado (eliminar del historial)
+            try {
+                await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Token ${token}`,
+                    },
+                    body: JSON.stringify({ lugar_id: lugar.id }),
+                });
+            } catch (error) {
+                console.error('Error eliminando visita:', error);
             }
         }
     };

@@ -6,13 +6,13 @@ const stylesFiltros = StyleSheet.create({
   // Contenedor principal de la pantalla de filtros
   container: {
     flex: 1,
-    backgroundColor: '#ffcf7e', 
+    backgroundColor: '#f5f6fa', // fondo blanco-azulado suave
     padding: 20,
     justifyContent: 'flex-start',
   },
   // Botón de aceptar filtros
   acceptButton: {
-    backgroundColor: '#ffab1e', 
+    backgroundColor: '#6c63ff', // morado principal
     borderRadius: 10,
     paddingHorizontal: 32,
     paddingVertical: 12,
@@ -29,18 +29,18 @@ const stylesFiltros = StyleSheet.create({
   },
   // Caja de cada filtro (sección, estado, etc.)
   filterBox: {
-    backgroundColor: '#fffbe7',
+    backgroundColor: '#e6e9f7', // azul/morado muy claro
     borderRadius: 14,
     padding: 16,
     marginBottom: 18,
-    shadowColor: '#ffab1e',
+    shadowColor: '#6c63ff', // sombra morada
     shadowOpacity: 0.08,
     shadowRadius: 6,
     elevation: 2,
   },
   // Etiqueta de cada picker
   pickerLabel: {
-    color: '#b85c00',
+    color: '#3a3a6a', // azul/morado oscuro
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 6,

@@ -70,9 +70,8 @@ const MujeresCombinadas = () => {
                                 mujer_nombre: mujer.nombre,
                                 mujer_foto: mujer.foto,
                                 mujer_descripcion: mujer.descripcion,
-                                areas_investigacion: mujer.areas_investigacion, // <-- Añadido correctamente
-                                area: mujer.area_conocimiento, // Si tienes un campo de área principal
-                                visited: false // Inicialmente no visitada
+                                areas_investigacion: mujer.areas_investigacion,
+                                area: (mujer.areas_investigacion && mujer.areas_investigacion.length > 0) ? mujer.areas_investigacion[0] : 'Sin área',
                             });
                         });
                     }
@@ -161,7 +160,7 @@ const MujeresCombinadas = () => {
 
     // Render principal
     return (
-        <View style={[styles.container, { backgroundColor: '#edebff' }]}> 
+        <View style={[styles.container, { backgroundColor: '#f5f6fa' }]}> 
             {/* Botón para mostrar/ocultar filtros */}
             <TouchableOpacity
                 style={styles.filterButton2}

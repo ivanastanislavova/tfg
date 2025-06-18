@@ -6,7 +6,7 @@ const styles = StyleSheet.create({
     // Contenedor principal
     container: {
         flex: 1,
-        backgroundColor: '#ffcf7e', 
+        backgroundColor: '#f5f6fa', 
         padding: 20,
     },
     // Título principal

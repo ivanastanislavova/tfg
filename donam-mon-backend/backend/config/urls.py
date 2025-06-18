@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from mujeres.views import MujerViewSet, LugarViewSet, UserUpdateView, RegisterView, VisitedLugarView
+from mujeres.views import MujerViewSet, LugarViewSet, UserUpdateView, RegisterView, VisitedLugarView, rutas_list, VisitedLugarRutaView
 from django.conf import settings
 from django.conf.urls.static import static
 from rest_framework.authtoken.views import obtain_auth_token
@@ -33,5 +33,8 @@ urlpatterns = [
     path('api/register/', RegisterView.as_view()),
     path('api/visit-lugar/', VisitedLugarView.as_view()),
     path('api/visited-lugares/', VisitedLugarView.as_view()),
+    path('api/visit-lugar-ruta/', VisitedLugarRutaView.as_view()),
+    path('api/visited-lugares-ruta/', VisitedLugarRutaView.as_view()),
+    path('api/rutas/', rutas_list),
     path('api/', include(router.urls)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -103,7 +103,7 @@ const PerfilUsuario = ({ route, navigation }) => {
     };
 
     return (
-        <View style={[styles.container, { backgroundColor: '#edebff' }]}> 
+        <View style={[styles.container, { backgroundColor: '#f5f6fa' }]}> 
             <View style={{ alignItems: 'center', marginTop: 18, marginBottom: 10 }}>
                 <Image source={require('../assets/usuario.png')} style={{ width: 90, height: 90, borderRadius: 45, marginBottom: 10, borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#fff' }} />
                 <Text style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: '#5f68c4' }}>

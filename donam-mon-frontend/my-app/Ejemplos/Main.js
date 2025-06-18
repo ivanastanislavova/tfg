@@ -6,7 +6,7 @@ import Mapa from './Mapa';
 import MujeresCombinadas from './MujeresCombinadas';
 import PerfilUsuario from './PerfilUsuario';
 import { Image } from 'react-native';
-import QR from './QR';
+import Rutas from './Rutas';
 
 // Crea el navegador de pestañas inferiores
 const Tab = createBottomTabNavigator();
@@ -45,10 +45,10 @@ const Main = ({ route }) => {
                     ),
                 }} 
             />
-            {/* Pestaña de QR */}
+            {/* Pestaña de Rutas (sustituye QR) */}
             <Tab.Screen 
-                name="QR" 
-                component={QR} 
+                name="Rutas" 
+                component={Rutas} 
                 options={{ 
                     headerShown: false,
                     tabBarIcon: ({ color, size }) => (

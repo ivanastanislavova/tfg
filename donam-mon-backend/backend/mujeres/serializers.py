@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mujer, Lugar, UserProfile, VisitedLugar
+from .models import Mujer, Lugar, UserProfile, VisitedLugar, VisitedLugarRuta
 from django.contrib.auth.models import User
 
 class LugarSerializer(serializers.ModelSerializer):
@@ -8,7 +8,7 @@ class LugarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Lugar
-        fields = ('id', 'nombre', 'descripcion', 'latitud', 'longitud', 'mujer', 'foto', 'foto_url')
+        fields = ('id', 'nombre', 'descripcion', 'latitud', 'longitud', 'mujer', 'foto', 'foto_url', 'ar_url')
 
     def get_foto_url(self, obj):
         request = self.context.get('request')
@@ -19,6 +19,7 @@ class LugarSerializer(serializers.ModelSerializer):
                 return request.build_absolute_uri(url)
             else:
                 return url
+        # Si no hay foto, devolver None explícito
         return None
 
 class MujerSerializer(serializers.ModelSerializer):
@@ -60,7 +61,19 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return user
 
 class VisitedLugarSerializer(serializers.ModelSerializer):
-    lugar = LugarSerializer(read_only=True)
+    lugar = serializers.SerializerMethodField()
     class Meta:
         model = VisitedLugar
         fields = ['id', 'lugar', 'visited_at']
+
+    def get_lugar(self, obj):
+        # Pasar el contexto para que LugarSerializer pueda construir foto_url correctamente
+        return LugarSerializer(obj.lugar, context=self.context).data
+
+class VisitedLugarRutaSerializer(serializers.ModelSerializer):
+    lugar = LugarSerializer(read_only=True)
+    mujer = serializers.StringRelatedField(read_only=True)
+
+    class Meta:
+        model = VisitedLugarRuta
+        fields = ('id', 'user', 'mujer', 'lugar', 'visited_at')
