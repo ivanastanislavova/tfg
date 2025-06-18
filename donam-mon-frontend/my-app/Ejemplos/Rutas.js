@@ -32,7 +32,7 @@ const Rutas = () => {
         try {
             const token = await AsyncStorage.getItem('token');
             if (!token) return setVisitedRutaIds([]);
-            const response = await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?mujer_id=${selectedRuta.id}`, {
+            const response = await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?ruta_id=${selectedRuta.id}`, {
                 method: 'GET',
                 headers: { 'Authorization': `Token ${token}` },
             });
@@ -59,7 +59,7 @@ const Rutas = () => {
             await fetch('http://192.168.1.132:8000/api/visit-lugar-ruta/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
-                body: JSON.stringify({ mujer_id: selectedRuta.id, lugar_nombre: lugar.nombre })
+                body: JSON.stringify({ ruta_id: selectedRuta.id, lugar_id: lugar.id })
             });
             setScanMsg('¡Lugar de ruta marcado como visitado!');
             fetchVisitedRuta();
@@ -67,6 +67,24 @@ const Rutas = () => {
             setScanMsg('Error al marcar como visitado en ruta.');
         }
         setTimeout(() => setScanMsg(''), 2000);
+    };
+
+    const handleReiniciarRuta = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) return;
+            // Eliminar todos los visitados de la ruta para este usuario
+            await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?ruta_id=${selectedRuta.id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Token ${token}` },
+            });
+            setVisitedRutaIds([]);
+            setScanMsg('Ruta reiniciada. Todos los lugares están como no visitados.');
+            setTimeout(() => setScanMsg(''), 2000);
+        } catch {
+            setScanMsg('Error al reiniciar la ruta.');
+            setTimeout(() => setScanMsg(''), 2000);
+        }
     };
 
     if (!selectedRuta) {
@@ -108,6 +126,9 @@ const Rutas = () => {
             />
             <TouchableOpacity style={styles.scanButton} onPress={() => setShowScanner(true)}>
                 <Text style={styles.scanButtonText}>Escanear QR de lugar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.scanButton} onPress={handleReiniciarRuta}>
+                <Text style={styles.scanButtonText}>Reiniciar ruta</Text>
             </TouchableOpacity>
             <Modal visible={showScanner} animationType="slide">
                 <View style={{ flex: 1, backgroundColor: '#f5f6fa', justifyContent: 'center' }}>

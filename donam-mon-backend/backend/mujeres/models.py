@@ -58,13 +58,22 @@ class VisitedLugar(models.Model):
 
 class VisitedLugarRuta(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='visited_lugares_ruta')
-    mujer = models.ForeignKey(Mujer, on_delete=models.CASCADE, related_name='rutas_visitadas')
+    ruta = models.ForeignKey('Ruta', on_delete=models.CASCADE, related_name='visitas')
     lugar = models.ForeignKey(Lugar, on_delete=models.CASCADE)
     visited_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        unique_together = ('user', 'mujer', 'lugar')
+        unique_together = ('user', 'ruta', 'lugar')
         ordering = ['-visited_at']
 
     def __str__(self):
-        return f"{self.user.username} visitó {self.lugar.nombre} en ruta {self.mujer.nombre} el {self.visited_at}"
+        return f"{self.user.username} visitó {self.lugar.nombre} en ruta {self.ruta.nombre} el {self.visited_at}"
+
+class Ruta(models.Model):
+    nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True)
+    mujeres = models.ManyToManyField('Mujer', related_name='rutas', blank=True)
+    lugares = models.ManyToManyField('Lugar', related_name='rutas', blank=True)
+
+    def __str__(self):
+        return self.nombre

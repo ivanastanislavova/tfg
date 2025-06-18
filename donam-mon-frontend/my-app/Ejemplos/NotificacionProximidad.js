@@ -42,7 +42,7 @@ const NotificacionProximidad = () => {
             Notifications.scheduleNotificationAsync({
               content: {
                 title: '¡Estás cerca de un lugar destacado!',
-                body: `Te encuentras a ${dist.toFixed(2)} km de ${lugar.nombre} (${lugar.mujer_nombre})`,
+                body: `Te encuentras a ${dist !== null && dist !== undefined ? dist.toFixed(2) : ''} km de ${lugar.nombre} (${lugar.mujer_nombre})`,
               },
               trigger: null,
             });

@@ -250,7 +250,7 @@ const MujeresCombinadas = () => {
                         return (
                             <TouchableOpacity
                                 style={{ marginBottom: 20, alignItems: 'center' }}
-                                onPress={() => navigation.navigate('Detail', { lugar: item, updateMujer })}
+                                onPress={() => navigation.navigate('Detail', { lugar: item })}
                                 activeOpacity={0.85}
                             >
                                 <ImageBackground
@@ -274,9 +274,9 @@ const MujeresCombinadas = () => {
                                     <View style={{ backgroundColor: 'rgba(255,255,255,0.85)', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, padding: 14, paddingTop: 40, alignItems: 'center', zIndex: 2, minHeight: 90 }}>
                                         <Text style={[styles.fallaTitle, { fontSize: 18, fontWeight: 'bold', color: '#bc5880', marginBottom: 6, textAlign: 'center' }]} numberOfLines={2}>{item.mujer_nombre}</Text>
                                         <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, justifyContent: 'center' }}>
-                                            {item.distance !== null && (
+                                            {item.distance !== null && item.distance !== undefined ? (
                                                 <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#1e88e5', marginRight: 8 }}>{item.distance.toFixed(2)} km</Text>
-                                            )}
+                                            ) : null}
                                             <Text style={{ fontSize: 13, color: item.visited ? '#43a047' : '#e53935', fontWeight: 'bold' }}>{item.visited ? 'Visitado' : 'No visitado'}</Text>
                                         </View>
                                     </View>

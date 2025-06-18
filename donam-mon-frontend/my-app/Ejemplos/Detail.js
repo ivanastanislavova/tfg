@@ -7,13 +7,12 @@ import styles from './styles-detail';
 
 // Componente de detalle de una mujer/lugar
 const Detail = ({ route, navigation }) => {
-    // Obtiene el lugar y la función updateMujer desde los parámetros de navegación
-    const { lugar, updateMujer } = route.params;
+    // Obtiene el lugar desde los parámetros de navegación
+    const { lugar } = route.params;
 
     // Cambia el estado de visitada/no visitada y actualiza el estado global
     const toggleVisited = async () => {
         const updatedLugar = { ...lugar, visited: !lugar.visited };
-        updateMujer(updatedLugar);
         navigation.setParams({ lugar: updatedLugar });
         const token = await AsyncStorage.getItem('token');
         if (!token) return;
@@ -159,7 +158,7 @@ const Detail = ({ route, navigation }) => {
                 {lugar.descripcion && (
                     <Text style={{ fontSize: 15, color: '#5f68c4', marginBottom: 2 }}>Descripción: <Text style={{ color: '#222' }}>{lugar.descripcion}</Text></Text>
                 )}
-                {lugar.distance !== null && (
+                {lugar.distance !== null && lugar.distance !== undefined && (
                     <Text style={{ fontSize: 15, color: '#bc5880', marginBottom: 8 }}>Distancia: <Text style={{ color: '#222' }}>{lugar.distance.toFixed(2)} km</Text></Text>
                 )}
                 {/* Botón para marcar como visitada/no visitada */}

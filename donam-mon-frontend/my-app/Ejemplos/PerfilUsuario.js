@@ -122,7 +122,19 @@ const PerfilUsuario = ({ route, navigation }) => {
                     </TouchableOpacity>
                 </View>
             </View>
-            <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: '#bc5880', alignSelf: 'center', letterSpacing: 0.5 }}>
+            <TouchableOpacity
+                onPress={() => navigation.navigate('HistorialLugares')}
+                style={{ backgroundColor: '#5f68c4', borderRadius: 12, padding: 14, marginVertical: 12, alignItems: 'center' }}
+            >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Ver historial de lugares visitados</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+                onPress={() => navigation.navigate('HistorialRutas')}
+                style={{ backgroundColor: '#6c63ff', borderRadius: 12, padding: 14, marginVertical: 0, alignItems: 'center' }}
+            >
+                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Ver historial de rutas completadas</Text>
+            </TouchableOpacity>
+            {/* <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: '#bc5880', alignSelf: 'center', letterSpacing: 0.5 }}>
                 Historial de lugares visitados
             </Text>
             <FlatList
@@ -169,7 +181,7 @@ const PerfilUsuario = ({ route, navigation }) => {
             />
             <TouchableOpacity onPress={handleClearHistory} style={[styles.clearButton, { backgroundColor: '#5f68c4', borderRadius: 12, marginBottom: 8 }]}> 
                 <Text style={[styles.clearButtonText, { color: '#fff', fontWeight: 'bold' }]}>Borrar Historial</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <TouchableOpacity onPress={handleLogout} style={[styles.clearButton, { backgroundColor: '#bc5880', borderRadius: 12 }]}> 
                 <Text style={[styles.clearButtonText, { color: '#fff', fontWeight: 'bold' }]}>Cerrar sesión</Text>
             </TouchableOpacity>

@@ -25,7 +25,7 @@ const AReality = () => {
                 const { latitude, longitude } = location.coords;
 
                 // 2. Obtener lugares desde el backend
-                const response = await axios.get('http://192.168.1.132:8000/api/mujeres/');
+                const response = await axios.get('http:192.168.1.132:8000/api/mujeres/');
                 let lugares = [];
                 response.data.forEach(mujer => {
                     if (mujer.lugares && Array.isArray(mujer.lugares)) {
@@ -106,7 +106,7 @@ const AReality = () => {
                             onPress={() => openURL(lugar.ar_url)}
                         >
                             <Text style={styles.buttonText}>Abrir RA de {lugar.nombre}</Text>
-                            <Text style={{ color: '#fff', fontSize: 13, marginTop: 2 }}>{lugar.distance.toFixed(2)} km</Text>
+                            <Text style={{ color: '#fff', fontSize: 13, marginTop: 2 }}>{lugar.distance !== null && lugar.distance !== undefined ? lugar.distance.toFixed(2) : ''} km</Text>
                         </TouchableOpacity>
                     ))}
                 </ScrollView>

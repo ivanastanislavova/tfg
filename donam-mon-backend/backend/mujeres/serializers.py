@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Mujer, Lugar, UserProfile, VisitedLugar, VisitedLugarRuta
+from .models import Mujer, Lugar, UserProfile, VisitedLugar, VisitedLugarRuta, Ruta
 from django.contrib.auth.models import User
 
 class LugarSerializer(serializers.ModelSerializer):
@@ -77,3 +77,10 @@ class VisitedLugarRutaSerializer(serializers.ModelSerializer):
     class Meta:
         model = VisitedLugarRuta
         fields = ('id', 'user', 'mujer', 'lugar', 'visited_at')
+
+class RutaSerializer(serializers.ModelSerializer):
+    mujeres = serializers.StringRelatedField(many=True)
+    lugares = LugarSerializer(many=True, read_only=True)
+    class Meta:
+        model = Ruta
+        fields = ('id', 'nombre', 'descripcion', 'mujeres', 'lugares')

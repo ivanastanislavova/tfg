@@ -13,14 +13,6 @@ import styles from './styles';
 import stylesFiltros from './styles-filtros';
 import { Picker } from '@react-native-picker/picker';
 
-// Lista de secciones posibles para filtrar fallas
-const ALL_SECTIONS = [
-    "Todas","E", "1A", "1B", "2A", "2B", "3A", "3B", "3C", "4A", "4B", "4C", 
-    "5A", "5B", "5C", "6A", "6B", "6C", "7A", "7B", "7C", "8A", "8B", "8C", "FC",
-    "IE", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", 
-    "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22"
-];
-
 // Componente principal del mapa
 const Mapa = () => {
     // Referencia al componente MapView para animar la cámara

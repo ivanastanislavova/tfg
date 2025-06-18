@@ -10,7 +10,8 @@ import Welcome from './Welcome';
 import Filtros from './Filtros';
 import Register from './Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
+import HistorialLugares from './HistorialLugares';
+import HistorialRutas from './HistorialRutas';
 
 // Crea el stack de navegación (pantallas apiladas)
 const Stack = createStackNavigator();
@@ -63,6 +64,8 @@ const NavigationAppDemo2 = () => {
         {/* Pantalla de detalle de falla */}
         <Stack.Screen name="Detail" component={Detail} options={{ headerTintColor: '#ffab1e' }} />
         <Stack.Screen name="Filtros" component={Filtros} />
+        <Stack.Screen name="HistorialLugares" component={HistorialLugares} options={{ title: 'Historial de Lugares Visitados' }} />
+        <Stack.Screen name="HistorialRutas" component={HistorialRutas} options={{ title: 'Historial de Rutas Completadas' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );
