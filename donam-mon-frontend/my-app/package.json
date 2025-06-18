@@ -40,7 +40,8 @@
     "react-native-webview": "^13.13.5",
     "three": "^0.166.0",
     "three-orbitcontrols": "^2.110.2",
-    "three-stdlib": "^2.36.0"
+    "three-stdlib": "^2.36.0",
+    "expo-notifications": "~0.31.3"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0"

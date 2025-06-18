@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Image, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, Share } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -58,6 +58,22 @@ const Detail = ({ route, navigation }) => {
     const closeImageModal = () => {
         setModalVisible(false);
         setModalImage(null);
+    };
+
+    // Permite compartir la información del lugar
+    const compartirLugar = async () => {
+        try {
+            let message = `¡Echa un vistazo a este lugar de la ruta Mujeres!\n\n`;
+            message += `Nombre: ${lugar.nombre}\n`;
+            if (lugar.direccion) message += `Dirección: ${lugar.direccion}\n`;
+            if (lugar.descripcion) message += `Descripción: ${lugar.descripcion}\n`;
+            if (lugar.mujer_nombre) message += `Mujer destacada: ${lugar.mujer_nombre}\n`;
+            if (lugar.mujer_descripcion) message += `Sobre ella: ${lugar.mujer_descripcion}\n`;
+            if (lugar.foto) message += `\nImagen: ${lugar.foto}`;
+            const result = await Share.share({ message });
+        } catch (error) {
+            console.error('Error al compartir el lugar:', error);
+        }
     };
 
     // Render principal de la pantalla de detalle
@@ -121,6 +137,12 @@ const Detail = ({ route, navigation }) => {
             {/* Tarjeta de información del lugar */}
             <View style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 20, padding: 18, marginBottom: 18, marginHorizontal: 8, elevation: 2, borderWidth: 2, borderColor: '#5f68c4' }}>
                 <Text style={{ color: '#5f68c4', fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>Lugar</Text>
+                {/* Botón para compartir */}
+                <View style={{ alignItems: 'flex-end', marginBottom: 8 }}>
+                    <TouchableOpacity onPress={compartirLugar} style={{ backgroundColor: '#6c63ff', borderRadius: 20, padding: 8 }}>
+                        <Ionicons name="share" size={25} color="#fff" />
+                    </TouchableOpacity>
+                </View>
                 {/* Imagen del lugar */}
                 {lugar.foto ? (
                     <TouchableOpacity onPress={() => openImageModal(lugar.foto)}>
