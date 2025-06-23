@@ -55,7 +55,7 @@ const Main = ({ route }) => {
                     options={{ 
                         headerShown: false,
                         tabBarIcon: ({ color, size }) => (
-                            <Image source={require('../assets/qr.png')} style={{ width: size, height: size, tintColor: color }} />
+                            <Image source={require('../assets/rutas.png')} style={{ width: size, height: size, tintColor: color }} />
                         ),
                     }} 
                 />
@@ -66,7 +66,7 @@ const Main = ({ route }) => {
                     options={{ 
                         headerShown: false,
                         tabBarIcon: ({ color, size }) => (
-                            <Image source={require('../assets/ra.png')} style={{ width: size, height: size, tintColor: color }} />
+                            <Image source={require('../assets/ar.png')} style={{ width: size, height: size, tintColor: color }} />
                         ),
                     }} 
                 />

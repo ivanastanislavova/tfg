@@ -93,6 +93,8 @@ const Rutas = () => {
     if (!selectedRuta) {
         return (
             <View style={styles.container}>
+                {/* Imagen decorativa de rutas */}
+                <Image source={require('../assets/rutas.png')} style={styles.rutasImage} resizeMode="contain" />
                 <Text style={styles.header}>Rutas</Text>
                 <FlatList
                     data={rutas}
@@ -116,7 +118,12 @@ const Rutas = () => {
                 <Text style={styles.backButtonText}>← Volver</Text>
             </TouchableOpacity>
             <Text style={styles.header}>Ruta: {selectedRuta.nombre}</Text>
-            <Text style={styles.completada}>{completada ? '¡Ruta completada!' : 'Escanea los QR de cada lugar para completar la ruta.'}</Text>
+            <View style={styles.qrRow}>
+                {!completada && (
+                    <Image source={require('../assets/qr.png')} style={styles.qrImageSmall} resizeMode="contain" />
+                )}
+                <Text style={[styles.completada, { marginLeft: !completada ? 12 : 0, textAlign: !completada ? 'left' : 'center' }]}>{completada ? '¡Ruta completada!' : 'Escanea los QR de cada lugar para completar la ruta.'}</Text>
+            </View>
             <FlatList
                 data={selectedRuta.lugares}
                 keyExtractor={item => item.id.toString()}
@@ -162,6 +169,7 @@ const Rutas = () => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f6fa', padding: 16 },
+    rutasImage: { width: '100%', height: 120, marginBottom: 10, alignSelf: 'center' },
     header: { fontSize: 26, fontWeight: 'bold', color: '#6c63ff', marginBottom: 18, textAlign: 'center' },
     rutaCard: { backgroundColor: '#fff', borderRadius: 14, padding: 18, marginBottom: 14, elevation: 2 },
     rutaTitle: { fontSize: 20, fontWeight: 'bold', color: '#3a3a6a' },
@@ -174,6 +182,16 @@ const styles = StyleSheet.create({
     lugarStatus: { fontSize: 16, fontWeight: 'bold', color: '#6c63ff' },
     scanButton: { backgroundColor: '#6c63ff', borderRadius: 10, padding: 14, marginTop: 16, alignItems: 'center' },
     scanButtonText: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
+    qrRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginBottom: 10,
+        marginLeft: 18,
+        marginRight: 18,
+    },
+    qrImage: { width: 60, height: 60, marginTop: 4, marginBottom: 4 },
+    qrImageSmall: { width: 28, height: 28, marginRight: 0 },
 });
 
 export default Rutas;

@@ -158,6 +158,12 @@ const MujeresCombinadas = () => {
         return a.distance - b.distance;
     });
 
+    // Detectar si hay filtros activos
+    const hayFiltrosActivos =
+        (selectedSection && selectedSection !== 'Todas') ||
+        (selectedVisited && selectedVisited !== 'Todas') ||
+        (searchTerm && searchTerm.trim() !== '');
+
     // Render principal
     return (
         <View style={[styles.container, { backgroundColor: '#f5f6fa' }]}> 
@@ -166,7 +172,25 @@ const MujeresCombinadas = () => {
                 style={styles.filterButton2}
                 onPress={() => { setShowPicker(!showPicker); setSearchTerm(''); }}
             >
-                <Text style={styles.filterButtonText2}>Filtros</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                    {hayFiltrosActivos && (
+                        <View style={{
+                            marginRight: 8,
+                            marginTop: 4,
+                            width: 14,
+                            height: 14,
+                            borderRadius: 7,
+                            backgroundColor: '#bc5880', // color temático
+                            borderWidth: 2,
+                            borderColor: '#fff',
+                            shadowColor: '#bc5880',
+                            shadowOpacity: 0.25,
+                            shadowRadius: 4,
+                            shadowOffset: { width: 0, height: 2 },
+                        }} />
+                    )}
+                    <Text style={styles.filterButtonText2}>Filtros</Text>
+                </View>
             </TouchableOpacity>
             {/* Panel de filtros (Picker) */}
             {showPicker && (
