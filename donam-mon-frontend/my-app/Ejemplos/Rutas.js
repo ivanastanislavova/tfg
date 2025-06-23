@@ -15,7 +15,10 @@ const Rutas = () => {
     useEffect(() => {
         const fetchRutas = async () => {
             try {
-                const response = await axios.get('http://192.168.1.44:8000/api/rutas/');
+                const token = await AsyncStorage.getItem('token');
+                const response = await axios.get('http://192.168.1.44:8000/api/rutas/', {
+                    headers: token ? { Authorization: `Token ${token}` } : {},
+                });
                 setRutas(response.data);
             } catch (error) {
                 setRutas([]);

@@ -19,7 +19,7 @@ const Detail = ({ route, navigation }) => {
         if (!lugar.visited) {
             // Marcar como visitado
             try {
-                await fetch('http://192.168.1.132:8000/api/visit-lugar/', {
+                const response = await fetch('http://192.168.1.44:8000/api/visit-lugar/', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -27,13 +27,18 @@ const Detail = ({ route, navigation }) => {
                     },
                     body: JSON.stringify({ lugar_id: lugar.id }),
                 });
+                const data = await response.json().catch(() => ({}));
+                console.log('Visita response status:', response.status, 'data:', data);
+                if (!response.ok) {
+                    throw new Error(`Error ${response.status}: ${JSON.stringify(data)}`);
+                }
             } catch (error) {
                 console.error('Error registrando visita:', error);
             }
         } else {
             // Marcar como no visitado (eliminar del historial)
             try {
-                await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+                await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
                     method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json',
