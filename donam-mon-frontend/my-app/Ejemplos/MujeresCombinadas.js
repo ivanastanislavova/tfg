@@ -6,7 +6,6 @@ import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { Picker } from '@react-native-picker/picker';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useFiltros } from './FiltrosContext';
-import { combineFallas, applyFilters } from './utilsFallas';
 import styles from './styles';
 import stylesFiltros from './styles-filtros';
 
@@ -72,6 +71,7 @@ const MujeresCombinadas = () => {
                                 mujer_descripcion: mujer.descripcion,
                                 areas_investigacion: mujer.areas_investigacion,
                                 area: (mujer.areas_investigacion && mujer.areas_investigacion.length > 0) ? mujer.areas_investigacion[0] : 'Sin área',
+                                mujer_fechas: mujer.fechas // <-- añade fechas de la mujer
                             });
                         });
                     }

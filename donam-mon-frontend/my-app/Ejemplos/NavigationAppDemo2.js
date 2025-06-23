@@ -12,6 +12,7 @@ import Register from './Register';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import HistorialLugares from './HistorialLugares';
 import HistorialRutas from './HistorialRutas';
+import RutaDetail from './RutaDetail';
 
 // Crea el stack de navegación (pantallas apiladas)
 const Stack = createStackNavigator();
@@ -60,12 +61,13 @@ const NavigationAppDemo2 = () => {
         {/* Pantalla de bienvenida (sin header) */}
         <Stack.Screen name="Welcome" component={Welcome} options={{ headerShown: false }} />
         {/* Pantalla principal con tabs */}
-        <Stack.Screen name="Main" component={Main} options={{ headerLeft: null }} />
+        <Stack.Screen name="Main" component={Main} options={{ headerLeft: null, headerTintColor: '#5f68c4', headerTitleStyle: { color: '#5f68c4', fontWeight: 'bold' } }} />
         {/* Pantalla de detalle de falla */}
-        <Stack.Screen name="Detail" component={Detail} options={{ headerTintColor: '#ffab1e' }} />
+        <Stack.Screen name="Detail" component={Detail} options={{ headerTintColor: '#5f68c4', headerBackTitle: 'Volver' }} />
+        <Stack.Screen name="RutaDetail" component={RutaDetail} options={{ headerTintColor: '#5f68c4', headerBackTitle: 'Volver' }} />
         <Stack.Screen name="Filtros" component={Filtros} />
-        <Stack.Screen name="HistorialLugares" component={HistorialLugares} options={{ title: 'Historial de Lugares Visitados' }} />
-        <Stack.Screen name="HistorialRutas" component={HistorialRutas} options={{ title: 'Historial de Rutas Completadas' }} />
+        <Stack.Screen name="HistorialLugares" component={HistorialLugares} options={{ title: 'Historial de Lugares Visitados', headerTintColor: '#5f68c4', headerBackTitle: 'Volver' }} />
+        <Stack.Screen name="HistorialRutas" component={HistorialRutas} options={{ title: 'Historial de Rutas Completadas', headerTintColor: '#5f68c4', headerBackTitle: 'Volver' }} />
       </Stack.Navigator>
     </NavigationContainer>
   );

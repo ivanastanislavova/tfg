@@ -10,6 +10,9 @@ const Detail = ({ route, navigation }) => {
     // Obtiene el lugar desde los parámetros de navegación
     const { lugar } = route.params;
 
+    // DEBUG: Mostrar el objeto lugar en consola para comprobar los campos
+    console.log('Detalle lugar:', lugar);
+
     // Cambia el estado de visitada/no visitada y actualiza el estado global
     const toggleVisited = async () => {
         const updatedLugar = { ...lugar, visited: !lugar.visited };
@@ -82,7 +85,7 @@ const Detail = ({ route, navigation }) => {
 
     // Render principal de la pantalla de detalle
     return (
-        <ScrollView style={[styles.container, { backgroundColor: '#edebff' }]}> 
+        <ScrollView style={[styles.container, { backgroundColor: '#f5f6fa' }]}> 
             {/* Modal de imagen en grande */}
             {modalVisible && (
                 <View style={{ position: 'absolute', zIndex: 1000, top: 0, left: 0, right: 0, bottom: 0, width: '100%', height: '100%', backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' }}>
@@ -96,6 +99,24 @@ const Detail = ({ route, navigation }) => {
             <View style={{ backgroundColor: 'rgba(255,255,255,0.97)', borderRadius: 20, padding: 18, marginTop: 18, marginBottom: 12, marginHorizontal: 8, elevation: 2, borderWidth: 2, borderColor: '#bc5880', alignItems: 'center' }}>
                 {/* Nombre de la mujer */}
                 <Text style={{ color: '#bc5880', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 6 }}>{lugar.mujer_nombre}</Text>
+                {/* Chips de áreas de investigación (debajo del nombre) */}
+                {(Array.isArray(lugar.areas_investigacion) && lugar.areas_investigacion.length > 0) ? (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 2, marginBottom: 4 }}>
+                        {lugar.areas_investigacion.map((area, idx) => (
+                            <View key={idx} style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{area}</Text>
+                            </View>
+                        ))}
+                    </View>
+                ) : (
+                    lugar.areas_investigacion && typeof lugar.areas_investigacion === 'string' && lugar.areas_investigacion.length > 0 ? (
+                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 2, marginBottom: 4 }}>
+                            <View style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.areas_investigacion}</Text>
+                            </View>
+                        </View>
+                    ) : null
+                )}
                 {/* Imagen de la mujer */}
                 {lugar.mujer_foto ? (
                     <TouchableOpacity onPress={() => openImageModal(lugar.mujer_foto)}>
@@ -105,27 +126,13 @@ const Detail = ({ route, navigation }) => {
                         />
                     </TouchableOpacity>
                 ) : null}
+                {/* Fechas de la mujer debajo de la imagen */}
+                {(lugar.fechas || lugar.mujer_fechas) && (
+                    <Text style={{ color: '#5f68c4', fontSize: 15, marginBottom: 6, textAlign: 'center' }}>{lugar.fechas || lugar.mujer_fechas}</Text>
+                )}
                 {/* Descripción de la mujer justificada a la izquierda */}
                 {lugar.mujer_descripcion && (
                     <Text style={{ color: '#222', fontSize: 15, marginBottom: 8, textAlign: 'left', alignSelf: 'stretch' }}>{lugar.mujer_descripcion}</Text>
-                )}
-                {/* Chips de áreas de investigación */}
-                {(Array.isArray(lugar.areas_investigacion) && lugar.areas_investigacion.length > 0) ? (
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 6, marginBottom: 4 }}>
-                        {lugar.areas_investigacion.map((area, idx) => (
-                            <View key={idx} style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
-                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{area}</Text>
-                            </View>
-                        ))}
-                    </View>
-                ) : (
-                    lugar.areas_investigacion && typeof lugar.areas_investigacion === 'string' && lugar.areas_investigacion.length > 0 ? (
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 6, marginBottom: 4 }}>
-                            <View style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
-                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.areas_investigacion}</Text>
-                            </View>
-                        </View>
-                    ) : null
                 )}
                 {/* Chip de ámbito */}
                 {lugar.mujer_ambito && (
@@ -133,14 +140,10 @@ const Detail = ({ route, navigation }) => {
                         <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.mujer_ambito}</Text>
                     </View>
                 )}
-                {/* Fechas de la mujer */}
-                {lugar.mujer_fechas && (
-                    <Text style={{ color: '#5f68c4', fontSize: 15, marginBottom: 2 }}>{lugar.mujer_fechas}</Text>
-                )}
             </View>
             {/* Tarjeta de información del lugar */}
             <View style={{ backgroundColor: 'rgba(255,255,255,0.92)', borderRadius: 20, padding: 18, marginBottom: 18, marginHorizontal: 8, elevation: 2, borderWidth: 2, borderColor: '#5f68c4' }}>
-                <Text style={{ color: '#5f68c4', fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>Lugar</Text>
+                <Text style={{ color: '#5f68c4', fontSize: 18, fontWeight: 'bold', marginBottom: 10, textAlign: 'center' }}>{lugar.nombre}</Text>
                 {/* Botón para compartir */}
                 <View style={{ alignItems: 'flex-end', marginBottom: 8 }}>
                     <TouchableOpacity onPress={compartirLugar} style={{ backgroundColor: '#6c63ff', borderRadius: 20, padding: 8 }}>
@@ -156,15 +159,11 @@ const Detail = ({ route, navigation }) => {
                     <Text style={styles.text}>No hay imagen disponible</Text>
                 )}
                 {/* Información relevante del lugar */}
-                <Text style={{ fontSize: 16, color: '#bc5880', fontWeight: 'bold', marginBottom: 4 }}>Nombre: <Text style={{ fontWeight: 'normal', color: '#222' }}>{lugar.nombre}</Text></Text>
                 {lugar.direccion && (
                     <Text style={{ fontSize: 15, color: '#5f68c4', marginBottom: 2 }}>Dirección: <Text style={{ color: '#222' }}>{lugar.direccion}</Text></Text>
                 )}
                 {lugar.descripcion && (
-                    <Text style={{ fontSize: 15, color: '#5f68c4', marginBottom: 2 }}>Descripción: <Text style={{ color: '#222' }}>{lugar.descripcion}</Text></Text>
-                )}
-                {lugar.distance !== null && lugar.distance !== undefined && (
-                    <Text style={{ fontSize: 15, color: '#bc5880', marginBottom: 8 }}>Distancia: <Text style={{ color: '#222' }}>{lugar.distance.toFixed(2)} km</Text></Text>
+                    <Text style={{ fontSize: 15, color: '#000', marginBottom: 2 }}>{lugar.descripcion}</Text>
                 )}
                 {/* Botón para marcar como visitada/no visitada */}
                 <TouchableOpacity onPress={toggleVisited} style={{ alignSelf: 'center', marginTop: 10, minWidth: 140, borderRadius: 20, backgroundColor: lugar.visited ? '#43a047' : '#e53935', elevation: 2, paddingVertical: 12, paddingHorizontal: 22 }}>
@@ -192,6 +191,10 @@ const Detail = ({ route, navigation }) => {
                             />
                         </MapView>
                     </View>
+                )}
+                {/* Distancia debajo del mapa, alineada a la izquierda */}
+                {lugar.distance !== null && lugar.distance !== undefined && (
+                    <Text style={{ fontSize: 15, color: '#bc5880', marginBottom: 8, textAlign: 'left' }}>Distancia: <Text style={{ color: '#222' }}>{lugar.distance.toFixed(2)} km</Text></Text>
                 )}
             </View>
         </ScrollView>

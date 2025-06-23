@@ -8,7 +8,6 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation, useIsFocused } from '@react-navigation/native';
 import { useFiltros } from './FiltrosContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { combineFallas, applyFilters } from './utilsFallas';
 import styles from './styles';
 import stylesFiltros from './styles-filtros';
 import { Picker } from '@react-native-picker/picker';
