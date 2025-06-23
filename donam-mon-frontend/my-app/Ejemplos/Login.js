@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, TextInput, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import usersData from '../usuarios.json';
 
 export default function Login() {
   const navigation = useNavigation(); // Hook para navegación
@@ -23,7 +22,7 @@ export default function Login() {
   // Valida el login del usuario contra la API de Django
   const validateLogin = async () => {
     try {
-    const response = await fetch('http://192.168.1.132:8000/api/api-token-auth/', {
+    const response = await fetch('http://192.168.1.44:8000/api/api-token-auth/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password }),

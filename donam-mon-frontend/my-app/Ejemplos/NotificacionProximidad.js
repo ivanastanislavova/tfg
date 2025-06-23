@@ -15,9 +15,9 @@ const NotificacionProximidad = () => {
         if (status !== 'granted') return;
         let location = await Location.getCurrentPositionAsync({});
         const { latitude, longitude } = location.coords;
-        const response = await axios.get('http://192.168.1.132:8000/api/mujeres/');
+        const response = await axios.get('http://192.168.1.44:8000/api/mujeres/');
         let lugares = [];
-        response.data.forEach(mujer => {
+        response.data.results.forEach(mujer => {
           if (mujer.lugares && Array.isArray(mujer.lugares)) {
             mujer.lugares.forEach(lugar => {
               lugares.push({ ...lugar, mujer_nombre: mujer.nombre });

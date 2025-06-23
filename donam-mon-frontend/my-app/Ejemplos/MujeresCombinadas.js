@@ -38,7 +38,7 @@ const MujeresCombinadas = () => {
                 setMujeres(lugares.map(l => ({ ...l, visited: false })));
                 return;
             }
-            const response = await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+            const response = await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
                 method: 'GET',
                 headers: {
                     'Authorization': `Token ${token}`,
@@ -59,10 +59,10 @@ const MujeresCombinadas = () => {
     useEffect(() => {
         const fetchMujeres = async () => {
             try {
-                const response = await axios.get('http://192.168.1.132:8000/api/mujeres/');
+                const response = await axios.get('http://192.168.1.44:8000/api/mujeres/');
                 // Aplana los lugares y añade referencia a la mujer
                 let mujeresLugares = [];
-                response.data.forEach(mujer => {
+                response.data.results.forEach(mujer => {
                     if (mujer.lugares && Array.isArray(mujer.lugares)) {
                         mujer.lugares.forEach(lugar => {
                             mujeresLugares.push({

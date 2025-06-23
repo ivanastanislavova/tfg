@@ -14,7 +14,7 @@ const HistorialLugares = ({ navigation }) => {
                     setVisitedFallas([]);
                     return;
                 }
-                const response = await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+                const response = await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
                     method: 'GET',
                     headers: { 'Authorization': `Token ${token}` },
                 });
@@ -35,7 +35,7 @@ const HistorialLugares = ({ navigation }) => {
         try {
             const token = await AsyncStorage.getItem('token');
             if (!token) return;
-            await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+            await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
                 method: 'DELETE',
                 headers: { 'Authorization': `Token ${token}` },
             });

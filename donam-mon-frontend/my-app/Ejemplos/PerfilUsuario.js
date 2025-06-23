@@ -21,7 +21,7 @@ const PerfilUsuario = ({ route, navigation }) => {
                     setVisitedFallas([]);
                     return;
                 }
-                const response = await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+                const response = await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
                     method: 'GET',
                     headers: {
                         'Authorization': `Token ${token}`,
@@ -50,7 +50,7 @@ const PerfilUsuario = ({ route, navigation }) => {
                 Alert.alert('Error', 'No se encontró el token de autenticación.');
                 return;
             }
-            const response = await fetch('http://192.168.1.132:8000/api/update-username/', {
+            const response = await fetch('http://192.168.1.44:8000/api/update-username/', {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -88,7 +88,7 @@ const PerfilUsuario = ({ route, navigation }) => {
         try {
             const token = await AsyncStorage.getItem('token');
             if (!token) return;
-            await fetch('http://192.168.1.132:8000/api/visited-lugares/', {
+            await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Token ${token}`,

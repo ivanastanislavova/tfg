@@ -14,6 +14,11 @@ class MujerViewSet(viewsets.ModelViewSet):
     queryset = Mujer.objects.all()
     serializer_class = MujerSerializer
 
+    def get_permissions(self):
+        if self.action == 'list':
+            return [AllowAny()]
+        return [IsAuthenticated()]
+
 class LugarViewSet(viewsets.ModelViewSet):
     queryset = Lugar.objects.all()
     serializer_class = LugarSerializer

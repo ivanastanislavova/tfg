@@ -15,7 +15,7 @@ const Rutas = () => {
     useEffect(() => {
         const fetchRutas = async () => {
             try {
-                const response = await axios.get('http://192.168.1.132:8000/api/rutas/');
+                const response = await axios.get('http://192.168.1.44:8000/api/rutas/');
                 setRutas(response.data);
             } catch (error) {
                 setRutas([]);
@@ -32,7 +32,7 @@ const Rutas = () => {
         try {
             const token = await AsyncStorage.getItem('token');
             if (!token) return setVisitedRutaIds([]);
-            const response = await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?ruta_id=${selectedRuta.id}`, {
+            const response = await fetch(`http://192.168.1.44:8000/api/visited-lugares-ruta/?ruta_id=${selectedRuta.id}`, {
                 method: 'GET',
                 headers: { 'Authorization': `Token ${token}` },
             });
@@ -56,7 +56,7 @@ const Rutas = () => {
         // Marcar como visitado en ruta
         try {
             const token = await AsyncStorage.getItem('token');
-            await fetch('http://192.168.1.132:8000/api/visit-lugar-ruta/', {
+            await fetch('http://192.168.1.44:8000/api/visit-lugar-ruta/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${token}` },
                 body: JSON.stringify({ ruta_id: selectedRuta.id, lugar_id: lugar.id })
@@ -74,7 +74,7 @@ const Rutas = () => {
             const token = await AsyncStorage.getItem('token');
             if (!token) return;
             // Eliminar todos los visitados de la ruta para este usuario
-            await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?ruta_id=${selectedRuta.id}`, {
+            await fetch(`http://192.168.1.44:8000/api/visited-lugares-ruta/?ruta_id=${selectedRuta.id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Token ${token}` },
             });

@@ -45,10 +45,11 @@ const Mapa = () => {
         const fetchMujeres = async () => {
             try {
                 const token = await AsyncStorage.getItem('token');
-                const response = await axios.get('http://192.168.1.132:8000/api/mujeres/', {
+                console.log('TOKEN ENVIADO:', token); // Log para depuración
+                const response = await axios.get('http://192.168.1.44:8000/api/mujeres/', {
                     headers: token ? { Authorization: `Token ${token}` } : {},
                 });
-                setLugares(response.data); // Guardamos el array de mujeres (cada una con sus lugares)
+                setLugares(response.data.results); // Guardamos el array de mujeres (cada una con sus lugares)
             } catch (error) {
                 console.error('Error fetching mujeres:', error);
             }

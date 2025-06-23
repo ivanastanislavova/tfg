@@ -15,7 +15,7 @@ const HistorialRutas = ({ navigation }) => {
         try {
             const token = await AsyncStorage.getItem('token');
             if (!token) return setRutasCompletadas([]);
-            const response = await fetch('http://192.168.1.132:8000/api/rutas/', {
+            const response = await fetch('http://192.168.1.44:8000/api/rutas/', {
                 method: 'GET',
                 headers: { 'Authorization': `Token ${token}` },
             });
@@ -24,7 +24,7 @@ const HistorialRutas = ({ navigation }) => {
                 // Para cada ruta, comprobar si todos los lugares están visitados en la ruta
                 const completadas = [];
                 for (const ruta of rutas) {
-                    const res = await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?mujer_id=${ruta.id}`, {
+                    const res = await fetch(`http://192.168.1.44:8000/api/visited-lugares-ruta/?mujer_id=${ruta.id}`, {
                         method: 'GET',
                         headers: { 'Authorization': `Token ${token}` },
                     });
@@ -49,7 +49,7 @@ const HistorialRutas = ({ navigation }) => {
             if (!token) return;
             // Para cada ruta completada, borrar visitas
             for (const ruta of rutasCompletadas) {
-                await fetch(`http://192.168.1.132:8000/api/visited-lugares-ruta/?mujer_id=${ruta.id}`, {
+                await fetch(`http://192.168.1.44:8000/api/visited-lugares-ruta/?mujer_id=${ruta.id}`, {
                     method: 'DELETE',
                     headers: { 'Authorization': `Token ${token}` },
                 });

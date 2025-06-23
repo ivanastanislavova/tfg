@@ -25,9 +25,9 @@ const AReality = () => {
                 const { latitude, longitude } = location.coords;
 
                 // 2. Obtener lugares desde el backend
-                const response = await axios.get('http:192.168.1.132:8000/api/mujeres/');
+                const response = await axios.get('http:192.168.1.44:8000/api/mujeres/');
                 let lugares = [];
-                response.data.forEach(mujer => {
+                response.data.results.forEach(mujer => {
                     if (mujer.lugares && Array.isArray(mujer.lugares)) {
                         mujer.lugares.forEach(lugar => {
                             if (lugar.ar_url) {
