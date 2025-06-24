@@ -33,8 +33,11 @@ const Rutas = () => {
                 keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
                     <TouchableOpacity style={styles.rutaCard} onPress={() => navigation.navigate('RutaDetail', { ruta: item })}>
-                        <Text style={styles.rutaTitle}>Ruta: {item.nombre}</Text>
+                        <Text style={styles.rutaTitle}>Ruta de {item.nombre}</Text>
                         <Text style={styles.rutaSubtitle}>{item.lugares.length} lugares</Text>
+                        {item.descripcion ? (
+                            <Text style={styles.rutaDescripcion}>{item.descripcion}</Text>
+                        ) : null}
                     </TouchableOpacity>
                 )}
             />
@@ -49,6 +52,12 @@ const styles = StyleSheet.create({
     rutaCard: { backgroundColor: '#fff', borderRadius: 14, padding: 18, marginBottom: 14, elevation: 2 },
     rutaTitle: { fontSize: 20, fontWeight: 'bold', color: '#3a3a6a' },
     rutaSubtitle: { fontSize: 15, color: '#6c63ff', marginTop: 4 },
+    rutaDescripcion: {
+        fontSize: 15,
+        color: '#444',
+        marginTop: 8,
+        lineHeight: 20,
+    },
 });
 
 export default Rutas;

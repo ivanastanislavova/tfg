@@ -3,6 +3,7 @@ import { View, Text, FlatList, TouchableOpacity, StyleSheet, Image, Modal } from
 import axios from 'axios';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CameraView, useCameraPermissions } from 'expo-camera';
+import MapView, { Marker } from 'react-native-maps';
 
 const RutaDetail = ({ route }) => {
     const { ruta } = route.params;
@@ -73,22 +74,79 @@ const RutaDetail = ({ route }) => {
 
     const completada = ruta.lugares.every(l => visitedRutaIds.includes(l.id));
 
+    // Calcula el centro aproximado de la ruta para centrar el mapa
+    const getInitialRegion = () => {
+        if (!ruta.lugares || ruta.lugares.length === 0) {
+            return {
+                latitude: 39.513,
+                longitude: -0.4242,
+                latitudeDelta: 0.01,
+                longitudeDelta: 0.01,
+            };
+        }
+        const lats = ruta.lugares.map(l => l.latitud);
+        const lngs = ruta.lugares.map(l => l.longitud);
+        const minLat = Math.min(...lats);
+        const maxLat = Math.max(...lats);
+        const minLng = Math.min(...lngs);
+        const maxLng = Math.max(...lngs);
+        return {
+            latitude: (minLat + maxLat) / 2,
+            longitude: (minLng + maxLng) / 2,
+            latitudeDelta: Math.max(0.01, (maxLat - minLat) * 2 || 0.01),
+            longitudeDelta: Math.max(0.01, (maxLng - minLng) * 2 || 0.01),
+        };
+    };
+
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Ruta: {ruta.nombre}</Text>
+            <Text
+                style={styles.header}
+                numberOfLines={2}
+                ellipsizeMode="tail"
+            >
+                Ruta de {ruta.nombre}
+            </Text>
             <View style={styles.qrRow}>
                 {!completada && (
                     <Image source={require('../assets/qr.png')} style={styles.qrImageSmall} resizeMode="contain" />
                 )}
                 <Text style={[styles.completada, { marginLeft: !completada ? 12 : 0, textAlign: !completada ? 'left' : 'center' }]}>{completada ? '¡Ruta completada!' : 'Escanea los QR de cada lugar para completar la ruta.'}</Text>
             </View>
+            {/* Mapa con los puntos de la ruta */}
+            {ruta.lugares && ruta.lugares.length > 0 && (
+                <View style={styles.mapaContainer}>
+                    <MapView
+                        style={{ flex: 1 }}
+                        initialRegion={getInitialRegion()}
+                        scrollEnabled={false}
+                        zoomEnabled={false}
+                        pitchEnabled={false}
+                        rotateEnabled={false}
+                    >
+                        {ruta.lugares.map((lugar, idx) =>
+                            (lugar.latitud && lugar.longitud) ? (
+                                <Marker
+                                    key={lugar.id}
+                                    coordinate={{ latitude: lugar.latitud, longitude: lugar.longitud }}
+                                    pinColor={visitedRutaIds.includes(lugar.id) ? '#43a047' : '#5f68c4'}
+                                    title={lugar.nombre}
+                                    description={lugar.descripcion}
+                                />
+                            ) : null
+                        )}
+                    </MapView>
+                </View>
+            )}
             <FlatList
                 data={ruta.lugares}
                 keyExtractor={item => item.id.toString()}
                 renderItem={({ item }) => (
                     <View style={styles.lugarCard}>
                         <Text style={styles.lugarName}>{item.nombre}</Text>
-                        <Text style={styles.lugarStatus}>{visitedRutaIds.includes(item.id) ? 'Visitado' : 'No visitado'}</Text>
+                        <Text style={styles.lugarStatus}>
+                            {visitedRutaIds.includes(item.id) ? 'Visitado' : 'No visitado'}
+                        </Text>
                     </View>
                 )}
             />
@@ -129,7 +187,26 @@ const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f6fa', padding: 16 },
     header: { fontSize: 26, fontWeight: 'bold', color: '#6c63ff', marginBottom: 18, textAlign: 'center' },
     completada: { color: '#43a047', fontWeight: 'bold', fontSize: 16, marginBottom: 10, textAlign: 'center' },
-    lugarCard: { backgroundColor: '#e6e9f7', borderRadius: 10, padding: 12, marginBottom: 10, flexDirection: 'row', justifyContent: 'space-between' },
+    mapaContainer: {
+        width: '100%',
+        height: 220,
+        borderRadius: 14,
+        overflow: 'hidden',
+        marginTop: 18,
+        marginBottom: 18,
+        borderWidth: 2,
+        borderColor: '#bc5880',
+        alignSelf: 'center',
+    },
+    lugarCard: {
+        backgroundColor: '#e6e9f7',
+        borderRadius: 10,
+        padding: 12,
+        marginBottom: 10,
+        flexDirection: 'column',
+        justifyContent: 'flex-start',
+        alignItems: 'flex-start',
+    },
     lugarName: { fontSize: 16, color: '#3a3a6a' },
     lugarStatus: { fontSize: 16, fontWeight: 'bold', color: '#6c63ff' },
     scanButton: { backgroundColor: '#6c63ff', borderRadius: 10, padding: 14, marginTop: 16, alignItems: 'center' },
