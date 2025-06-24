@@ -14,13 +14,52 @@ import { Picker } from '@react-native-picker/picker';
 
 // Componente principal del mapa
 const Mapa = () => {
-    // Referencia al componente MapView para animar la cámara
     const mapView = useRef(null);
-    // Estados locales para datos de lugares y usuario
     const [lugares, setLugares] = useState([]);
     const [userLocation, setUserLocation] = useState(null);
+    const isFocused = useIsFocused(); 
 
-    // useEffect para pedir permisos de localización y centrar el mapa en el usuario
+    // Nueva función: obtener lugares visitados y marcar cada lugar
+    const fetchVisitedAndSet = async (mujeres) => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            let visitedIds = [];
+            if (token) {
+                const response = await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Token ${token}` },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    visitedIds = data.map(v => v.lugar.id);
+                }
+            }
+            // Marca cada lugar con visited
+            const mujeresMarcadas = mujeres.map(mujer => ({
+                ...mujer,
+                lugares: mujer.lugares
+                    ? mujer.lugares.map(lugar => ({
+                        ...lugar,
+                        visited: visitedIds.includes(lugar.id)
+                    }))
+                    : []
+            }));
+            setLugares(mujeresMarcadas);
+        } catch (error) {
+            // Si hay error, marca todos como no visitados
+            const mujeresMarcadas = mujeres.map(mujer => ({
+                ...mujer,
+                lugares: mujer.lugares
+                    ? mujer.lugares.map(lugar => ({
+                        ...lugar,
+                        visited: false
+                    }))
+                    : []
+            }));
+            setLugares(mujeresMarcadas);
+        }
+    };
+
     useEffect(() => {
         (async () => {
             let { status } = await Location.requestForegroundPermissionsAsync();
@@ -28,7 +67,6 @@ const Mapa = () => {
                 console.log('Permission to access location was denied');
                 return;
             }
-
             let location = await Location.getCurrentPositionAsync({});
             let region = {
                 latitude: parseFloat(location.coords.latitude),
@@ -44,17 +82,17 @@ const Mapa = () => {
         const fetchMujeres = async () => {
             try {
                 const token = await AsyncStorage.getItem('token');
-                console.log('TOKEN ENVIADO:', token); // Log para depuración
                 const response = await axios.get('http://192.168.1.44:8000/api/mujeres/', {
                     headers: token ? { Authorization: `Token ${token}` } : {},
                 });
-                setLugares(response.data.results); // Guardamos el array de mujeres (cada una con sus lugares)
+                // Llama a la función para marcar visitados
+                await fetchVisitedAndSet(response.data.results);
             } catch (error) {
                 console.error('Error fetching mujeres:', error);
             }
         };
         fetchMujeres();
-    }, []);
+    }, [isFocused]); // <-- Añadido isFocused como dependencia
 
     return (
         <View style={styles.container}>
@@ -72,49 +110,55 @@ const Mapa = () => {
                 ref={mapView}
             >
                 {lugares.map((mujer, idxMujer) => (
-                    mujer.lugares && mujer.lugares.map((lugar, idxLugar) => (
-                        <Marker
-                            key={`mujer${mujer.id}_lugar${lugar.id}`}
-                            coordinate={{
-                                latitude: lugar.latitud,
-                                longitude: lugar.longitud
-                            }}
-                        >
-                            <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.8)', borderColor: '#000' }]}> 
-                                <Icon name="gender-female" size={30} color="#f8d4e6" />
-                            </View>
-                            <Callout tooltip>
-                                <ScrollView style={styles.callout}>
-                                    {/* Mujer info */}
-                                    <Text style={styles.calloutTitle}>{mujer.nombre}</Text>
-                                    {mujer.foto_url && (
-                                        <View style={{ alignItems: 'center', width: '100%' }}>
-                                            <Image
-                                                source={{ uri: mujer.foto_url }}
-                                                style={{ width: 140, height: 140, borderRadius: 70, marginVertical: 5 }}
-                                            />
-                                        </View>
-                                    )}
-                                    {mujer.descripcion && (
-                                        <Text style={{ marginBottom: 5 }}>{mujer.descripcion}</Text>
-                                    )}
-                                    {/* Lugar info */}
-                                    <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{lugar.nombre}</Text>
-                                    {lugar.descripcion && (
-                                        <Text>{lugar.descripcion}</Text>
-                                    )}
-                                    {lugar.foto_url && (
-                                        <View style={{ alignItems: 'center', width: '100%' }}>
-                                            <Image
-                                                source={{ uri: lugar.foto_url }}
-                                                style={{ width: 80, height: 80, borderRadius: 10, marginVertical: 5 }}
-                                            />
-                                        </View>
-                                    )}
-                                </ScrollView>
-                            </Callout>
-                        </Marker>
-                    ))
+                    mujer.lugares && mujer.lugares.map((lugar, idxLugar) => {
+                        // Colores según visitado (igual que en MujeresCombinadas)
+                        let iconColor = '#5f68c4'; // morado por defecto (no visitado)
+                        if (lugar.visited) iconColor = '#43a047'; // verde si visitado
+
+                        return (
+                            <Marker
+                                key={`mujer${mujer.id}_lugar${lugar.id}`}
+                                coordinate={{
+                                    latitude: lugar.latitud,
+                                    longitude: lugar.longitud
+                                }}
+                            >
+                                <View style={[styles.iconContainer, { backgroundColor: 'rgba(255,255,255,0.8)', borderColor: '#000' }]}>
+                                    <Icon name="gender-female" size={30} color={iconColor} />
+                                </View>
+                                <Callout tooltip>
+                                    <ScrollView style={styles.callout}>
+                                        {/* Mujer info */}
+                                        <Text style={styles.calloutTitle}>{mujer.nombre}</Text>
+                                        {mujer.foto_url && (
+                                            <View style={{ alignItems: 'center', width: '100%' }}>
+                                                <Image
+                                                    source={{ uri: mujer.foto_url }}
+                                                    style={{ width: 140, height: 140, borderRadius: 70, marginVertical: 5 }}
+                                                />
+                                            </View>
+                                        )}
+                                        {mujer.descripcion && (
+                                            <Text style={{ marginBottom: 5 }}>{mujer.descripcion}</Text>
+                                        )}
+                                        {/* Lugar info */}
+                                        <Text style={{ fontWeight: 'bold', marginTop: 5 }}>{lugar.nombre}</Text>
+                                        {lugar.descripcion && (
+                                            <Text>{lugar.descripcion}</Text>
+                                        )}
+                                        {lugar.foto_url && (
+                                            <View style={{ alignItems: 'center', width: '100%' }}>
+                                                <Image
+                                                    source={{ uri: lugar.foto_url }}
+                                                    style={{ width: 80, height: 80, borderRadius: 10, marginVertical: 5 }}
+                                                />
+                                            </View>
+                                        )}
+                                    </ScrollView>
+                                </Callout>
+                            </Marker>
+                        );
+                    })
                 ))}
             </MapView>
         </View>

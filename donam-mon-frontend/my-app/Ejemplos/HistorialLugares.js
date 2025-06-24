@@ -103,7 +103,7 @@ const HistorialLugares = ({ navigation }) => {
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{ fontWeight: 'bold', color: '#5f68c4', fontSize: 16, marginBottom: 2 }}>{item.lugar?.nombre}</Text>
-                            <Text style={{ color: '#bc5880', fontSize: 13, fontWeight: 'bold', marginBottom: 1 }}>Visitada el:</Text>
+                            <Text style={{ color: '#bc5880', fontSize: 13, fontWeight: 'bold', marginBottom: 1 }}>Visitado el:</Text>
                             <Text style={{ color: '#888', fontSize: 13 }}>{item.visited_at ? new Date(item.visited_at).toLocaleString() : ''}</Text>
                         </View>
                     </View>
