@@ -4,13 +4,39 @@ import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, Image } from 
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import styles from './styles-perfil';
+import getCompletedRoutes from './user-stats-utils';
 
 // Componente principal del perfil de usuario
 const PerfilUsuario = ({ route, navigation }) => {
-    // Elimina toda la lógica de usuario local salvo el token
     const [newUsername, setNewUsername] = useState('');
     const [visitedFallas, setVisitedFallas] = useState([]);
+    const [username, setUsername] = useState('');
+    const [completedRoutes, setCompletedRoutes] = useState(0);
     const isFocused = useIsFocused();
+
+    // Obtiene el nombre de usuario actual del backend
+    const fetchUsername = async () => {
+        try {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) return setUsername('');
+            const response = await fetch('http://192.168.1.44:8000/api/update-username/', {
+                method: 'GET',
+                headers: { 'Authorization': `Token ${token}` },
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setUsername(data.username || '');
+            } else {
+                setUsername('');
+            }
+        } catch {
+            setUsername('');
+        }
+    };
+
+    useEffect(() => {
+        fetchUsername();
+    }, [isFocused]);
 
     useEffect(() => {
         // Solo obtiene el username del backend (opcional: puedes crear un endpoint para obtener el usuario actual)
@@ -39,7 +65,19 @@ const PerfilUsuario = ({ route, navigation }) => {
             }
         };
         getVisitedFallas();
-    }, [isFocused]);
+        // Calcular rutas completadas
+        const fetchCompletedRoutes = async () => {
+            const token = await AsyncStorage.getItem('token');
+            if (!token) return setCompletedRoutes(0);
+            const n = await getCompletedRoutes(
+                token,
+                'http://192.168.1.44:8000/api/visited-lugares-ruta/',
+                'http://192.168.1.44:8000/api/rutas/'
+            );
+            setCompletedRoutes(n);
+        };
+        fetchCompletedRoutes();
+    }, [isFocused, visitedFallas]);
 
     // handleSave: solo usa el token, no currentUser
     const handleSave = async () => {
@@ -60,9 +98,9 @@ const PerfilUsuario = ({ route, navigation }) => {
             });
             const data = await response.json();
             if (response.ok) {
-                setNewUsername(newUsername);
+                setNewUsername('');
+                fetchUsername(); // Refresca el nombre desde el backend
                 Alert.alert('Éxito', 'Nombre de usuario actualizado');
-                navigation.navigate('Main', { username: newUsername });
             } else {
                 Alert.alert('Error', data.error || 'No se pudo actualizar el nombre');
             }
@@ -104,36 +142,60 @@ const PerfilUsuario = ({ route, navigation }) => {
 
     return (
         <View style={[styles.container, { backgroundColor: '#f5f6fa' }]}> 
-            <View style={{ alignItems: 'center', marginTop: 18, marginBottom: 10 }}>
-                <Image source={require('../assets/usuario.png')} style={{ width: 90, height: 90, borderRadius: 45, marginBottom: 10, borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#fff' }} />
-                <Text style={{ fontSize: 15, fontWeight: 'bold', marginBottom: 10, textAlign: 'center', color: '#5f68c4' }}>
-                    Puedes cambiar tu nombre de usuario aquí
-                </Text>
-                <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 10, justifyContent: 'space-between' }}>
+            {/* Tarjeta de perfil mejorada */}
+            <View style={{ backgroundColor: '#fff', borderRadius: 22, padding: 22, marginTop: 18, marginBottom: 18, marginHorizontal: 2, alignItems: 'center', elevation: 6, shadowColor: '#5f68c4', shadowOpacity: 0.13, shadowRadius: 12, shadowOffset: { width: 0, height: 6 } }}>
+                <Image source={require('../assets/usuario.png')} style={{ width: 110, height: 110, borderRadius: 55, marginBottom: 10, borderWidth: 3, borderColor: '#5f68c4', backgroundColor: '#fff', shadowColor: '#5f68c4', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 4 } }} />
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#5f68c4', marginBottom: 2, textAlign: 'center', letterSpacing: 0.5 }}>{username || 'Usuario'}</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 10 }}>
+                    <View style={{ alignItems: 'center', marginHorizontal: 18 }}>
+                        <Image source={require('../assets/historial_lugares_visitados.png')} style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 2, borderWidth: 2, borderColor: '#5f68c4' }} />
+                        <Text style={{ color: '#bc5880', fontWeight: 'bold', fontSize: 16 }}>{visitedFallas.length}</Text>
+                        <Text style={{ color: '#5f68c4', fontSize: 13 }}>Lugares</Text>
+                    </View>
+                    <View style={{ width: 1, height: 38, backgroundColor: '#e0e0e0', marginHorizontal: 8 }} />
+                    <View style={{ alignItems: 'center', marginHorizontal: 18 }}>
+                        <Image source={require('../assets/historial_rutas_visitadas.png')} style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 2, borderWidth: 2, borderColor: '#5f68c4' }} />
+                        <Text style={{ color: '#bc5880', fontWeight: 'bold', fontSize: 16 }}>{completedRoutes}</Text>
+                        <Text style={{ color: '#5f68c4', fontSize: 13 }}>Rutas</Text>
+                    </View>
+                </View>
+                <Text style={{ fontSize: 15, color: '#888', marginBottom: 10, textAlign: 'center' }}>¡Sigue explorando para aumentar tus logros!</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', marginBottom: 0, justifyContent: 'space-between' }}>
                     <TextInput
-                        style={[styles.input, { backgroundColor: '#fff', borderRadius: 12, borderWidth: 1, borderColor: '#5f68c4', fontSize: 16, flex: 1, paddingHorizontal: 14, marginBottom: 0, marginRight: 8, color: '#222' }]}
+                        style={[styles.input, { backgroundColor: '#f5f6fa', borderRadius: 14, borderWidth: 1.5, borderColor: '#5f68c4', fontSize: 17, flex: 1, paddingHorizontal: 16, marginBottom: 0, marginRight: 10, color: '#222' }]}
                         value={newUsername}
                         onChangeText={setNewUsername}
-                        placeholder="Nombre de usuario"
+                        placeholder="Cambiar nombre"
                         placeholderTextColor="#bbb"
                     />
-                    <TouchableOpacity onPress={handleSave} style={[styles.button, { backgroundColor: '#5f68c4', borderRadius: 12, marginBottom: 0, paddingVertical: 10, paddingHorizontal: 16, alignSelf: 'auto' }]}> 
-                        <Text style={[styles.buttonText, { color: '#fff', fontWeight: 'bold', fontSize: 16 }]}>Guardar</Text>
+                    <TouchableOpacity onPress={handleSave} style={[styles.button, { backgroundColor: '#5f68c4', borderRadius: 14, marginBottom: 0, paddingVertical: 12, paddingHorizontal: 20, alignSelf: 'auto', elevation: 2 }]}> 
+                        <Text style={[styles.buttonText, { color: '#fff', fontWeight: 'bold', fontSize: 17 }]}>Guardar</Text>
                     </TouchableOpacity>
                 </View>
             </View>
-            <TouchableOpacity
-                onPress={() => navigation.navigate('HistorialLugares')}
-                style={{ backgroundColor: '#5f68c4', borderRadius: 12, padding: 14, marginVertical: 12, alignItems: 'center' }}
-            >
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Ver historial de lugares visitados</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-                onPress={() => navigation.navigate('HistorialRutas')}
-                style={{ backgroundColor: '#6c63ff', borderRadius: 12, padding: 14, marginVertical: 0, alignItems: 'center' }}
-            >
-                <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 16 }}>Ver historial de rutas completadas</Text>
-            </TouchableOpacity>
+            {/* Imágenes de historial */}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 10, marginBottom: 18 }}>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('HistorialLugares')}
+                    activeOpacity={0.85}
+                    style={{ borderRadius: 18, elevation: 4, shadowColor: '#5f68c4', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, backgroundColor: '#fff' }}
+                >
+                    <Image
+                        source={require('../assets/historial_lugares_visitados.png')}
+                        style={{ width: 170, height: 170, borderRadius: 18, resizeMode: 'cover' }}
+                    />
+                </TouchableOpacity>
+                <TouchableOpacity
+                    onPress={() => navigation.navigate('HistorialRutas')}
+                    activeOpacity={0.85}
+                    style={{ borderRadius: 18, elevation: 4, shadowColor: '#5f68c4', shadowOpacity: 0.12, shadowRadius: 8, shadowOffset: { width: 0, height: 4 }, backgroundColor: '#fff' }}
+                >
+                    <Image
+                        source={require('../assets/historial_rutas_visitadas.png')}
+                        style={{ width: 170, height: 170, borderRadius: 18, resizeMode: 'cover' }}
+                    />
+                </TouchableOpacity>
+            </View>
             {/* <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: '#bc5880', alignSelf: 'center', letterSpacing: 0.5 }}>
                 Historial de lugares visitados
             </Text>

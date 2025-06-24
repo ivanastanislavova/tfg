@@ -31,6 +31,10 @@ class UserUpdateView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
+    def get(self, request, *args, **kwargs):
+        user = request.user
+        return Response({'username': user.username})
+
     def put(self, request, *args, **kwargs):
         user = request.user
         new_username = request.data.get('username')
