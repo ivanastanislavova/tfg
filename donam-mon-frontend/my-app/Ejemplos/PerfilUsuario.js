@@ -148,13 +148,16 @@ const PerfilUsuario = ({ route, navigation }) => {
                 <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#5f68c4', marginBottom: 2, textAlign: 'center', letterSpacing: 0.5 }}>{username || 'Usuario'}</Text>
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 10 }}>
                     <View style={{ alignItems: 'center', marginHorizontal: 18 }}>
-                        <Image source={require('../assets/historial_lugares_visitados.png')} style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 2, borderWidth: 2, borderColor: '#5f68c4' }} />
+                        <Image source={require('../assets/fuego.png')} style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 2, borderWidth: 2, borderColor: '#5f68c4' }} />
                         <Text style={{ color: '#bc5880', fontWeight: 'bold', fontSize: 16 }}>{visitedFallas.length}</Text>
                         <Text style={{ color: '#5f68c4', fontSize: 13 }}>Lugares</Text>
                     </View>
                     <View style={{ width: 1, height: 38, backgroundColor: '#e0e0e0', marginHorizontal: 8 }} />
                     <View style={{ alignItems: 'center', marginHorizontal: 18 }}>
-                        <Image source={require('../assets/historial_rutas_visitadas.png')} style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 2, borderWidth: 2, borderColor: '#5f68c4' }} />
+                        {/* Ajuste visual: la imagen de rutas se desplaza un poco a la derecha y se recorta visualmente */}
+                        <View style={{ width: 44, height: 44, borderRadius: 12, overflow: 'hidden', alignItems: 'flex-end', justifyContent: 'center', borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#fff', marginBottom: 2 }}>
+                            <Image source={require('../assets/rutas.png')} style={{ width: 38, height: 44, resizeMode: 'contain', marginLeft: 8 }} />
+                        </View>
                         <Text style={{ color: '#bc5880', fontWeight: 'bold', fontSize: 16 }}>{completedRoutes}</Text>
                         <Text style={{ color: '#5f68c4', fontSize: 13 }}>Rutas</Text>
                     </View>

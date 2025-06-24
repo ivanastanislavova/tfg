@@ -286,6 +286,12 @@ const MujeresCombinadas = () => {
                                     {/* Nombre del lugar en la parte superior */}
                                     <View style={{ position: 'absolute', top: 0, left: 0, right: 0, backgroundColor: 'rgba(95,104,196,0.75)', borderTopLeftRadius: 24, borderTopRightRadius: 24, paddingVertical: 10, paddingHorizontal: 16, zIndex: 2 }}>
                                         <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18, textAlign: 'center' }} numberOfLines={2}>{item.nombre}</Text>
+                                        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: 4 }}>
+                                            {item.distance !== null && item.distance !== undefined ? (
+                                                <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#5f68c4', backgroundColor: '#fbd9e9', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2, marginRight: 10, overflow: 'hidden' }}>{item.distance.toFixed(2)} km</Text>
+                                            ) : null}
+                                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#5f68c4', backgroundColor: item.visited ? '#e0ffcf' : '#dcd9f8', borderRadius: 8, paddingHorizontal: 8, paddingVertical: 2, overflow: 'hidden' }}>{item.visited ? 'Visitado' : 'No visitado'}</Text>
+                                        </View>
                                     </View>
                                     {/* Imagen de la mujer superpuesta, centrada justo en el borde superior del contenedor blanco */}
                                     <View style={{ position: 'absolute', left: 0, right: 0, bottom: 70, alignItems: 'center', zIndex: 3 }}>
@@ -296,13 +302,25 @@ const MujeresCombinadas = () => {
                                     </View>
                                     {/* Info inferior: nombre de la mujer y datos */}
                                     <View style={{ backgroundColor: 'rgba(255,255,255,0.85)', borderBottomLeftRadius: 24, borderBottomRightRadius: 24, padding: 14, paddingTop: 40, alignItems: 'center', zIndex: 2, minHeight: 90 }}>
-                                        <Text style={[styles.fallaTitle, { fontSize: 18, fontWeight: 'bold', color: '#bc5880', marginBottom: 6, textAlign: 'center' }]} numberOfLines={2}>{item.mujer_nombre}</Text>
-                                        <View style={{ flexDirection: 'row', alignItems: 'center', marginBottom: 2, justifyContent: 'center' }}>
-                                            {item.distance !== null && item.distance !== undefined ? (
-                                                <Text style={{ fontWeight: 'bold', fontSize: 14, color: '#1e88e5', marginRight: 8 }}>{item.distance.toFixed(2)} km</Text>
-                                            ) : null}
-                                            <Text style={{ fontSize: 13, color: item.visited ? '#43a047' : '#e53935', fontWeight: 'bold' }}>{item.visited ? 'Visitado' : 'No visitado'}</Text>
-                                        </View>
+                                        <Text style={[styles.fallaTitle, { fontSize: 18, fontWeight: 'bold', color: '#bc5880', marginBottom: 2, textAlign: 'center' }]} numberOfLines={2}>{item.mujer_nombre}</Text>
+                                        <Text style={{
+                                            fontSize: 12,
+                                            color: '#fff',
+                                            fontWeight: 'bold',
+                                            marginBottom: 6,
+                                            textAlign: 'center',
+                                            backgroundColor: '#5f68c4',
+                                            borderRadius: 10,
+                                            paddingHorizontal: 10,
+                                            paddingVertical: 2,
+                                            overflow: 'hidden',
+                                            letterSpacing: 0.5,
+                                            shadowColor: '#bc5880',
+                                            shadowOpacity: 0.10,
+                                            shadowRadius: 4,
+                                            shadowOffset: { width: 0, height: 2 },
+                                            elevation: 2
+                                        }}>{item.area || 'Sin área'}</Text>
                                     </View>
                                 </ImageBackground>
                             </TouchableOpacity>

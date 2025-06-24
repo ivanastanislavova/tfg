@@ -48,9 +48,12 @@ const HistorialLugares = ({ navigation }) => {
 
     return (
         <View style={[styles.container, { backgroundColor: '#f5f6fa' }]}> 
-            <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: '#bc5880', alignSelf: 'center', letterSpacing: 0.5 }}>
-                Historial de lugares visitados
-            </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 8 }}>
+                <Image source={require('../assets/fuego.png')} style={{ width: 32, height: 32, marginRight: 8 }} />
+                <Text style={{ fontSize: 22, fontWeight: 'bold', color: '#bc5880', letterSpacing: 0.5 }}>
+                    Historial de lugares visitados
+                </Text>
+            </View>
             <FlatList
                 data={visitedFallas}
                 keyExtractor={(item, index) => item.lugar?.id ? item.lugar.id.toString() : `lugar-${index}`}
@@ -72,22 +75,35 @@ const HistorialLugares = ({ navigation }) => {
                         borderWidth: 2,
                         borderColor: '#5f68c4',
                     }}>
-                        <View style={{ width: 48, alignItems: 'center', marginRight: 14 }}>
-                            {item.lugar && item.lugar.foto_url ? (
-                                <Image
-                                    source={{ uri: item.lugar.foto_url }}
-                                    style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#eee' }}
-                                />
-                            ) : (
-                                <Image
-                                    source={require('../assets/fuego.png')}
-                                    style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#eee' }}
-                                />
-                            )}
+                        <View style={{ width: 54, height: 54, alignItems: 'center', justifyContent: 'center', marginRight: 14, backgroundColor: '#eee', borderWidth: 2, borderColor: '#5f68c4', borderRadius: 12, overflow: 'hidden' }}>
+                            {(() => {
+                                let fotoUrl = item.lugar && item.lugar.foto_url ? item.lugar.foto_url : null;
+                                if (fotoUrl && !fotoUrl.startsWith('http')) {
+                                    // Si la URL es relativa, anteponer el host del backend
+                                    fotoUrl = `http://192.168.1.44:8000${fotoUrl}`;
+                                }
+                                if (fotoUrl) {
+                                    console.log('Cargando imagen:', fotoUrl);
+                                }
+                                return fotoUrl ? (
+                                    <Image
+                                        source={{ uri: fotoUrl }}
+                                        style={{ width: 54, height: 54, resizeMode: 'cover', borderWidth: 2, borderColor: '#5f68c4' }}
+                                        onError={e => {
+                                            console.log('Error cargando imagen', fotoUrl, e.nativeEvent);
+                                        }}
+                                    />
+                                ) : (
+                                    <Image
+                                        source={require('../assets/fuego.png')}
+                                        style={{ width: 44, height: 44, resizeMode: 'contain' }}
+                                    />
+                                );
+                            })()}
                         </View>
                         <View style={{ flex: 1 }}>
                             <Text style={{ fontWeight: 'bold', color: '#5f68c4', fontSize: 16, marginBottom: 2 }}>{item.lugar?.nombre}</Text>
-                            <Text style={{ color: '#5f68c4', fontSize: 13, fontWeight: 'bold', marginBottom: 1 }}>Visitada el:</Text>
+                            <Text style={{ color: '#bc5880', fontSize: 13, fontWeight: 'bold', marginBottom: 1 }}>Visitada el:</Text>
                             <Text style={{ color: '#888', fontSize: 13 }}>{item.visited_at ? new Date(item.visited_at).toLocaleString() : ''}</Text>
                         </View>
                     </View>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const HistorialRutas = ({ navigation }) => {
@@ -63,7 +63,10 @@ const HistorialRutas = ({ navigation }) => {
 
     return (
         <View style={styles.container}>
-            <Text style={styles.header}>Historial de rutas completadas</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
+                <Image source={require('../assets/rutas.png')} style={{ width: 32, height: 32, marginRight: 8 }} />
+                <Text style={styles.header}>Historial de rutas completadas</Text>
+            </View>
             {loading ? (
                 <Text style={styles.loading}>Cargando...</Text>
             ) : rutasCompletadas.length === 0 ? (
@@ -89,13 +92,26 @@ const HistorialRutas = ({ navigation }) => {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#f5f6fa', padding: 16 },
-    header: { fontSize: 24, fontWeight: 'bold', color: '#6c63ff', marginBottom: 18, textAlign: 'center' },
-    loading: { color: '#6c63ff', textAlign: 'center', marginTop: 20 },
+    header: { fontSize: 22, fontWeight: 'bold', color: '#bc5880', letterSpacing: 0.5 },
+    loading: { color: '#5f68c4', textAlign: 'center', marginTop: 20 },
     empty: { color: '#888', textAlign: 'center', marginTop: 20 },
-    rutaCard: { backgroundColor: '#fff', borderRadius: 14, padding: 18, marginBottom: 14, elevation: 2 },
-    rutaTitle: { fontSize: 20, fontWeight: 'bold', color: '#3a3a6a' },
-    rutaSubtitle: { fontSize: 15, color: '#6c63ff', marginTop: 4 },
-    clearButton: { backgroundColor: '#6c63ff', borderRadius: 10, padding: 14, marginTop: 16, alignItems: 'center' },
+    rutaCard: {
+        backgroundColor: '#fff',
+        borderRadius: 14,
+        padding: 16,
+        marginBottom: 12,
+        marginHorizontal: 2,
+        elevation: 2,
+        shadowColor: '#5f68c4',
+        shadowOpacity: 0.10,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+        borderWidth: 2,
+        borderColor: '#5f68c4',
+    },
+    rutaTitle: { fontSize: 16, fontWeight: 'bold', color: '#5f68c4', marginBottom: 2 },
+    rutaSubtitle: { fontSize: 13, color: '#bc5880', fontWeight: 'bold', marginBottom: 1 },
+    clearButton: { backgroundColor: '#5f68c4', borderRadius: 12, padding: 14, marginTop: 16, alignItems: 'center', marginBottom: 8 },
     clearButtonText: { color: '#fff', fontSize: 17, fontWeight: 'bold' },
 });
 

@@ -3,6 +3,7 @@ import { View, Text, Image, ScrollView, TouchableOpacity, Share } from 'react-na
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MapView, { Marker } from 'react-native-maps';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import * as FileSystem from 'expo-file-system';
 import styles from './styles-detail';
 
 // Componente de detalle de una mujer/lugar
@@ -70,14 +71,22 @@ const Detail = ({ route, navigation }) => {
     // Permite compartir la información del lugar
     const compartirLugar = async () => {
         try {
-            let message = `¡Echa un vistazo a este lugar de la ruta Mujeres!\n\n`;
-            message += `Nombre: ${lugar.nombre}\n`;
-            if (lugar.direccion) message += `Dirección: ${lugar.direccion}\n`;
-            if (lugar.descripcion) message += `Descripción: ${lugar.descripcion}\n`;
+            let message = `¡Echa un vistazo a este lugar de la aplicación Dona'm Món!\n\n`;
+            message += `Nombre del lugar: ${lugar.nombre}\n`;
             if (lugar.mujer_nombre) message += `Mujer destacada: ${lugar.mujer_nombre}\n`;
             if (lugar.mujer_descripcion) message += `Sobre ella: ${lugar.mujer_descripcion}\n`;
-            if (lugar.foto) message += `\nImagen: ${lugar.foto}`;
-            const result = await Share.share({ message });
+            if (lugar.direccion) message += `Dirección: ${lugar.direccion}\n`;
+            if (lugar.descripcion) message += `Descripción: ${lugar.descripcion}\n`;
+            let options = { message };
+            if (lugar.foto) {
+                // Descargar la imagen a un archivo temporal
+                const fileUri = FileSystem.cacheDirectory + 'lugar.jpg';
+                const downloadRes = await FileSystem.downloadAsync(lugar.foto, fileUri);
+                if (downloadRes.status === 200) {
+                    options = { ...options, url: downloadRes.uri };
+                }
+            }
+            await Share.share(options);
         } catch (error) {
             console.error('Error al compartir el lugar:', error);
         }
@@ -99,23 +108,9 @@ const Detail = ({ route, navigation }) => {
             <View style={{ backgroundColor: 'rgba(255,255,255,0.97)', borderRadius: 20, padding: 18, marginTop: 18, marginBottom: 12, marginHorizontal: 8, elevation: 2, borderWidth: 2, borderColor: '#bc5880', alignItems: 'center' }}>
                 {/* Nombre de la mujer */}
                 <Text style={{ color: '#bc5880', fontSize: 22, fontWeight: 'bold', textAlign: 'center', marginBottom: 6 }}>{lugar.mujer_nombre}</Text>
-                {/* Chips de áreas de investigación (debajo del nombre) */}
-                {(Array.isArray(lugar.areas_investigacion) && lugar.areas_investigacion.length > 0) ? (
-                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 2, marginBottom: 4 }}>
-                        {lugar.areas_investigacion.map((area, idx) => (
-                            <View key={idx} style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
-                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{area}</Text>
-                            </View>
-                        ))}
-                    </View>
-                ) : (
-                    lugar.areas_investigacion && typeof lugar.areas_investigacion === 'string' && lugar.areas_investigacion.length > 0 ? (
-                        <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 2, marginBottom: 4 }}>
-                            <View style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
-                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.areas_investigacion}</Text>
-                            </View>
-                        </View>
-                    ) : null
+                {/* Fechas (debajo del nombre, sin chip) */}
+                {(lugar.fechas || lugar.mujer_fechas) && (
+                    <Text style={{ color: '#5f68c4', fontSize: 15, marginBottom: 4, textAlign: 'center' }}>{lugar.fechas || lugar.mujer_fechas}</Text>
                 )}
                 {/* Imagen de la mujer */}
                 {lugar.mujer_foto ? (
@@ -126,9 +121,22 @@ const Detail = ({ route, navigation }) => {
                         />
                     </TouchableOpacity>
                 ) : null}
-                {/* Fechas de la mujer debajo de la imagen */}
-                {(lugar.fechas || lugar.mujer_fechas) && (
-                    <Text style={{ color: '#5f68c4', fontSize: 15, marginBottom: 6, textAlign: 'center' }}>{lugar.fechas || lugar.mujer_fechas}</Text>
+                {/* Área de investigación como chip debajo de la imagen */}
+                {lugar.areas_investigacion && Array.isArray(lugar.areas_investigacion) && lugar.areas_investigacion.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6 }}>
+                        {lugar.areas_investigacion.map((area, idx) => (
+                            <View key={idx} style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{area}</Text>
+                            </View>
+                        ))}
+                    </View>
+                )}
+                {lugar.areas_investigacion && typeof lugar.areas_investigacion === 'string' && lugar.areas_investigacion.length > 0 && (
+                    <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6 }}>
+                        <View style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
+                            <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{lugar.areas_investigacion}</Text>
+                        </View>
+                    </View>
                 )}
                 {/* Descripción de la mujer justificada a la izquierda */}
                 {lugar.mujer_descripcion && (
