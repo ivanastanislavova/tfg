@@ -16,20 +16,20 @@ const styles = StyleSheet.create({
     // Botón principal de filtros
     filterButton: {
         backgroundColor: '#7196e4', // Azul
-        paddingVertical: 6,
+        paddingVertical: 0,
         paddingHorizontal: 30,
         borderRadius: 10,
-        marginTop: 40,
+        marginTop: 23,
         alignSelf: 'center',
         width: width + 20,
-        height: 50,
+        height: 39,
         alignItems: 'center',
     },
     // Texto del botón de filtros
     filterButtonText: {
         color: '#ffffff',
         fontSize: 16,
-        paddingTop: 13,
+        paddingTop: 11,
         fontWeight: 'bold',
     },
     // Botón alternativo de filtros (más pequeño)

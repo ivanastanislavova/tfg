@@ -126,6 +126,7 @@ class VisitedLugarRutaView(APIView):
         return Response({'success': 'Historial de ruta reiniciado.'}, status=204)
 
 @api_view(['GET'])
+@permission_classes([AllowAny])  # ← Agregar esta línea
 def rutas_list(request):
     rutas = Ruta.objects.all()
     serializer = RutaSerializer(rutas, many=True, context={'request': request})

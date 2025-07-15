@@ -1,17 +1,16 @@
-// PerfilUsuario.js: Pantalla de perfil de usuario y gestión de historial de fallas visitadas
+// PerfilUsuario.js: Pantalla de perfil de usuario y gestión de historial de lugares y rutas visitadas
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, FlatList, Alert, Image } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, Image } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useIsFocused } from '@react-navigation/native';
 import styles from './styles-perfil';
 import getCompletedRoutes from './user-stats-utils';
 
-// Componente principal del perfil de usuario
 const PerfilUsuario = ({ route, navigation }) => {
     const [newUsername, setNewUsername] = useState('');
-    const [visitedFallas, setVisitedFallas] = useState([]);
     const [username, setUsername] = useState('');
     const [completedRoutes, setCompletedRoutes] = useState(0);
+    const [visitedCount, setVisitedCount] = useState(0);
     const isFocused = useIsFocused();
 
     // Obtiene el nombre de usuario actual del backend
@@ -39,32 +38,6 @@ const PerfilUsuario = ({ route, navigation }) => {
     }, [isFocused]);
 
     useEffect(() => {
-        // Solo obtiene el username del backend (opcional: puedes crear un endpoint para obtener el usuario actual)
-        const getVisitedFallas = async () => {
-            try {
-                const token = await AsyncStorage.getItem('token');
-                if (!token) {
-                    setVisitedFallas([]);
-                    return;
-                }
-                const response = await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Token ${token}`,
-                    },
-                });
-                if (response.ok) {
-                    const data = await response.json();
-                    setVisitedFallas(data);
-                } else {
-                    setVisitedFallas([]);
-                }
-            } catch (error) {
-                console.error('Error al cargar las fallas visitadas:', error);
-                setVisitedFallas([]);
-            }
-        };
-        getVisitedFallas();
         // Calcular rutas completadas
         const fetchCompletedRoutes = async () => {
             const token = await AsyncStorage.getItem('token');
@@ -77,12 +50,34 @@ const PerfilUsuario = ({ route, navigation }) => {
             setCompletedRoutes(n);
         };
         fetchCompletedRoutes();
-    }, [isFocused, visitedFallas]);
+    }, [isFocused]);
+
+    useEffect(() => {
+        // Obtener el número de lugares visitados
+        const fetchVisitedCount = async () => {
+            try {
+                const token = await AsyncStorage.getItem('token');
+                if (!token) return setVisitedCount(0);
+                const response = await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
+                    method: 'GET',
+                    headers: { 'Authorization': `Token ${token}` },
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    setVisitedCount(Array.isArray(data) ? data.length : 0);
+                } else {
+                    setVisitedCount(0);
+                }
+            } catch {
+                setVisitedCount(0);
+            }
+        };
+        fetchVisitedCount();
+    }, [isFocused]);
 
     // handleSave: solo usa el token, no currentUser
     const handleSave = async () => {
         try {
-            // Obtener el token de autenticación
             const token = await AsyncStorage.getItem('token');
             if (!token) {
                 Alert.alert('Error', 'No se encontró el token de autenticación.');
@@ -99,7 +94,7 @@ const PerfilUsuario = ({ route, navigation }) => {
             const data = await response.json();
             if (response.ok) {
                 setNewUsername('');
-                fetchUsername(); // Refresca el nombre desde el backend
+                fetchUsername();
                 Alert.alert('Éxito', 'Nombre de usuario actualizado');
             } else {
                 Alert.alert('Error', data.error || 'No se pudo actualizar el nombre');
@@ -110,7 +105,6 @@ const PerfilUsuario = ({ route, navigation }) => {
         }
     };
 
-    // handleLogout: solo borra el token
     const handleLogout = async () => {
         try {
             await AsyncStorage.removeItem('token');
@@ -118,25 +112,6 @@ const PerfilUsuario = ({ route, navigation }) => {
         } catch (error) {
             console.error('Error al cerrar sesión:', error);
             Alert.alert('Error', 'No se pudo cerrar sesión');
-        }
-    };
-
-    // handleClearHistory: solo borra en backend (opcional, si tienes endpoint)
-    const handleClearHistory = async () => {
-        try {
-            const token = await AsyncStorage.getItem('token');
-            if (!token) return;
-            await fetch('http://192.168.1.44:8000/api/visited-lugares/', {
-                method: 'DELETE',
-                headers: {
-                    'Authorization': `Token ${token}`,
-                },
-            });
-            setVisitedFallas([]);
-            Alert.alert('Éxito', 'El historial de lugares visitados ha sido borrado.');
-        } catch (error) {
-            console.error('Error al borrar el historial:', error);
-            Alert.alert('Error', 'No se pudo borrar el historial.');
         }
     };
 
@@ -149,12 +124,11 @@ const PerfilUsuario = ({ route, navigation }) => {
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center', marginVertical: 10 }}>
                     <View style={{ alignItems: 'center', marginHorizontal: 18 }}>
                         <Image source={require('../assets/fuego.png')} style={{ width: 44, height: 44, borderRadius: 12, marginBottom: 2, borderWidth: 2, borderColor: '#5f68c4' }} />
-                        <Text style={{ color: '#bc5880', fontWeight: 'bold', fontSize: 16 }}>{visitedFallas.length}</Text>
+                        <Text style={{ color: '#bc5880', fontWeight: 'bold', fontSize: 16 }}>{visitedCount}</Text>
                         <Text style={{ color: '#5f68c4', fontSize: 13 }}>Lugares</Text>
                     </View>
                     <View style={{ width: 1, height: 38, backgroundColor: '#e0e0e0', marginHorizontal: 8 }} />
                     <View style={{ alignItems: 'center', marginHorizontal: 18 }}>
-                        {/* Ajuste visual: la imagen de rutas se desplaza un poco a la derecha y se recorta visualmente */}
                         <View style={{ width: 44, height: 44, borderRadius: 12, overflow: 'hidden', alignItems: 'flex-end', justifyContent: 'center', borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#fff', marginBottom: 2 }}>
                             <Image source={require('../assets/rutas.png')} style={{ width: 38, height: 44, resizeMode: 'contain', marginLeft: 8 }} />
                         </View>
@@ -199,54 +173,6 @@ const PerfilUsuario = ({ route, navigation }) => {
                     />
                 </TouchableOpacity>
             </View>
-            {/* <Text style={{ fontSize: 22, fontWeight: 'bold', marginBottom: 8, color: '#bc5880', alignSelf: 'center', letterSpacing: 0.5 }}>
-                Historial de lugares visitados
-            </Text>
-            <FlatList
-                data={visitedFallas}
-                keyExtractor={(item, index) => item.lugar?.id ? item.lugar.id.toString() : `lugar-${index}`}
-                style={{ marginBottom: 10, width: '100%' }}
-                renderItem={({ item }) => (
-                    <View style={{
-                        flexDirection: 'row',
-                        alignItems: 'center',
-                        backgroundColor: '#fff',
-                        borderRadius: 14,
-                        padding: 16,
-                        marginBottom: 12,
-                        marginHorizontal: 2,
-                        elevation: 2,
-                        shadowColor: '#5f68c4',
-                        shadowOpacity: 0.10,
-                        shadowRadius: 4,
-                        shadowOffset: { width: 0, height: 2 },
-                        borderWidth: 2,
-                        borderColor: '#5f68c4',
-                    }}>
-                        <View style={{ width: 48, alignItems: 'center', marginRight: 14 }}>
-                            {item.lugar && item.lugar.foto_url ? (
-                                <Image
-                                    source={{ uri: item.lugar.foto_url }}
-                                    style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#eee' }}
-                                />
-                            ) : (
-                                <Image
-                                    source={require('../assets/fuego.png')}
-                                    style={{ width: 44, height: 44, borderRadius: 22, borderWidth: 2, borderColor: '#5f68c4', backgroundColor: '#eee' }}
-                                />
-                            )}
-                        </View>
-                        <View style={{ flex: 1 }}>
-                            <Text style={{ fontWeight: 'bold', color: '#5f68c4', fontSize: 16, marginBottom: 2 }}>{item.lugar?.nombre}</Text>
-                            <Text style={{ color: '#5f68c4', fontSize: 13, fontWeight: 'bold', marginBottom: 1 }}>Visitada el:</Text>
-                            <Text style={{ color: '#888', fontSize: 13 }}>{item.visited_at ? new Date(item.visited_at).toLocaleString() : ''}</Text>
-                        </View>
-                    </View>
-                )}
-            />
-            <TouchableOpacity onPress={handleClearHistory} style={[styles.clearButton, { backgroundColor: '#5f68c4', borderRadius: 12, marginBottom: 8 }]}> 
-                <Text style={[styles.clearButtonText, { color: '#fff', fontWeight: 'bold' }]}>Borrar Historial</Text>
-            </TouchableOpacity> */}
             <TouchableOpacity onPress={handleLogout} style={[styles.clearButton, { backgroundColor: '#bc5880', borderRadius: 12 }]}> 
                 <Text style={[styles.clearButtonText, { color: '#fff', fontWeight: 'bold' }]}>Cerrar sesión</Text>
             </TouchableOpacity>
