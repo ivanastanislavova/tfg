@@ -126,7 +126,9 @@ const Detail = ({ route, navigation }) => {
                     <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6 }}>
                         {lugar.areas_investigacion.map((area, idx) => (
                             <View key={idx} style={{ backgroundColor: '#5f68c4', borderRadius: 14, paddingHorizontal: 12, paddingVertical: 4, margin: 3 }}>
-                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>{area}</Text>
+                                <Text style={{ color: '#fff', fontSize: 13, fontWeight: 'bold' }}>
+                                    {typeof area === 'object' ? area.nombre : area}
+                                </Text>
                             </View>
                         ))}
                     </View>

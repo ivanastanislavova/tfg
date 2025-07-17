@@ -1,5 +1,4 @@
 from django.db import models
-from django.contrib.postgres.fields import ArrayField
 from django.contrib.auth.models import User
 from django.utils import timezone
 
@@ -13,14 +12,17 @@ class Mujer(models.Model):
     nombre = models.CharField(max_length=100)
     descripcion = models.TextField()
     foto = models.ImageField(upload_to='', null=True, blank=True)
-    areas_investigacion = ArrayField(
-        models.CharField(max_length=100),
+    areas_investigacion = models.ManyToManyField( 
+        'AreaInvestigacion', 
         blank=True,
-        default=list,
+        related_name='mujeres',
         verbose_name='Áreas de investigación'
     )
     fechas = models.CharField(max_length=100, null=True, blank=True)
-
+    
+    class Meta: 
+        ordering = ['nombre']  # Ordenar por nombre para evitar el warning
+    
     def __str__(self):
         return self.nombre
 

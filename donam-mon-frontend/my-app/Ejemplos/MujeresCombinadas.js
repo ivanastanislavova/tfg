@@ -23,9 +23,9 @@ const ALL_AREAS = [
 
 const MujeresCombinadas = () => {
     const navigation = useNavigation();
-    const [mujeres, setMujeres] = useState([]); // Mujeres
-    const [userLocation, setUserLocation] = useState(null); // Ubicación del usuario
-    const [showPicker, setShowPicker] = useState(false); // Mostrar/ocultar filtros
+    const [mujeres, setMujeres] = useState([]);
+    const [userLocation, setUserLocation] = useState(null);
+    const [showPicker, setShowPicker] = useState(false);
     const isFocused = useIsFocused();
     const { selectedSection, setSelectedSection, selectedVisited, setSelectedVisited, searchTerm, setSearchTerm, sections, setSections } = useFiltros();
 
@@ -64,14 +64,21 @@ const MujeresCombinadas = () => {
                 response.data.results.forEach(mujer => {
                     if (mujer.lugares && Array.isArray(mujer.lugares)) {
                         mujer.lugares.forEach(lugar => {
+                            // ✅ CORRECCIÓN: Extraer nombres de areas_investigacion
+                            const areasNombres = mujer.areas_investigacion && Array.isArray(mujer.areas_investigacion) 
+                                ? mujer.areas_investigacion.map(area => 
+                                    typeof area === 'object' ? area.nombre : area
+                                  )
+                                : [];
+                            
                             mujeresLugares.push({
                                 ...lugar,
                                 mujer_nombre: mujer.nombre,
                                 mujer_foto: mujer.foto,
                                 mujer_descripcion: mujer.descripcion,
-                                areas_investigacion: mujer.areas_investigacion,
-                                area: (mujer.areas_investigacion && mujer.areas_investigacion.length > 0) ? mujer.areas_investigacion[0] : 'Sin área',
-                                mujer_fechas: mujer.fechas // <-- añade fechas de la mujer
+                                areas_investigacion: areasNombres, // ✅ Array de strings
+                                area: areasNombres.length > 0 ? areasNombres[0] : 'Sin área',
+                                mujer_fechas: mujer.fechas
                             });
                         });
                     }
@@ -115,43 +122,63 @@ const MujeresCombinadas = () => {
     };
 
     // Lógica de distancia
-    const getDistance = (lat1, lon1, lat2, lon2) => {
-        if (!lat1 || !lon1 || !lat2 || !lon2) return null;
-        const toRad = x => x * Math.PI / 180;
-        const R = 6371;
-        const dLat = toRad(lat2 - lat1);
-        const dLon = toRad(lon2 - lon1);
-        const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
-            Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        return R * c;
+    const calcularDistancia = (lat1, lon1, lat2, lon2) => {
+        const R = 6371; // Radio de la Tierra en km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = 
+            Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c;
+        return distance;
     };
 
-    // Filtros
-    let filteredLugares = mujeres;
-    if (selectedSection && selectedSection !== 'Todas') {
-        filteredLugares = filteredLugares.filter(lugar => lugar.area === selectedSection);
-    }
-    if (selectedVisited && selectedVisited !== 'Todas') {
-        filteredLugares = filteredLugares.filter(lugar => selectedVisited === 'Visitadas' ? lugar.visited : !lugar.visited);
-    }
-    if (searchTerm) {
-        filteredLugares = filteredLugares.filter(lugar =>
-            (lugar.nombre && lugar.nombre.toLowerCase().includes(searchTerm.toLowerCase())) ||
-            (lugar.mujer_nombre && lugar.mujer_nombre.toLowerCase().includes(searchTerm.toLowerCase()))
-        );
-    }
-    // Calcula distancia
-    filteredLugares = filteredLugares.map(lugar => {
-        if (userLocation) {
-            const distance = getDistance(userLocation.latitude, userLocation.longitude, lugar.latitud, lugar.longitud);
-            return { ...lugar, distance };
+    // Añadir distancia a cada lugar
+    const mujeresConDistancia = mujeres.map(mujer => {
+        if (userLocation && mujer.latitud && mujer.longitud) {
+            const distance = calcularDistancia(
+                userLocation.latitude, 
+                userLocation.longitude, 
+                mujer.latitud, 
+                mujer.longitud
+            );
+            return { ...mujer, distance };
         }
-        return lugar;
+        return { ...mujer, distance: null };
     });
 
-    // Ordena la lista de lugares de más cercano a más lejano
+    // Filtrado
+    let filteredLugares = mujeresConDistancia;
+
+    // Filtro por sección
+    if (selectedSection && selectedSection !== 'Todas') {
+        filteredLugares = filteredLugares.filter(lugar => 
+            lugar.areas_investigacion && 
+            Array.isArray(lugar.areas_investigacion) && 
+            lugar.areas_investigacion.includes(selectedSection)
+        );
+    }
+
+    // Filtro por visitado
+    if (selectedVisited && selectedVisited !== 'Todas') {
+        filteredLugares = filteredLugares.filter(lugar => {
+            if (selectedVisited === 'Visitadas') return lugar.visited;
+            if (selectedVisited === 'No visitadas') return !lugar.visited;
+            return true;
+        });
+    }
+
+    // Filtro por término de búsqueda
+    if (searchTerm && searchTerm.trim() !== '') {
+        filteredLugares = filteredLugares.filter(lugar =>
+            lugar.mujer_nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            lugar.nombre.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+    }
+
+    // Ordenar por distancia
     filteredLugares = filteredLugares.sort((a, b) => {
         if (a.distance === null) return 1;
         if (b.distance === null) return -1;
@@ -180,7 +207,7 @@ const MujeresCombinadas = () => {
                             width: 14,
                             height: 14,
                             borderRadius: 7,
-                            backgroundColor: '#bc5880', // color temático
+                            backgroundColor: '#bc5880',
                             borderWidth: 2,
                             borderColor: '#fff',
                             shadowColor: '#bc5880',

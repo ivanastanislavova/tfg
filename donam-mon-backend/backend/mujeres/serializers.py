@@ -1,6 +1,11 @@
 from rest_framework import serializers
-from .models import Mujer, Lugar, UserProfile, VisitedLugar, VisitedLugarRuta, Ruta
+from .models import Mujer, Lugar, UserProfile, VisitedLugar, VisitedLugarRuta, Ruta, AreaInvestigacion
 from django.contrib.auth.models import User
+
+class AreaInvestigacionSerializer(serializers.ModelSerializer):  # ← AGREGAR esta clase
+    class Meta:
+        model = AreaInvestigacion
+        fields = ['id', 'nombre']
 
 class LugarSerializer(serializers.ModelSerializer):
     mujer = serializers.StringRelatedField()
@@ -25,6 +30,7 @@ class LugarSerializer(serializers.ModelSerializer):
 class MujerSerializer(serializers.ModelSerializer):
     lugares = LugarSerializer(many=True, read_only=True)
     foto_url = serializers.SerializerMethodField()
+    areas_investigacion = AreaInvestigacionSerializer(many=True, read_only=True)  # ← CAMBIAR esta línea
 
     class Meta:
         model = Mujer
